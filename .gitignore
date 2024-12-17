@@ -1,8 +1,6 @@
-/main-blx.bib
-/main.aux
-/main.bbl
-/main.blg
-/main.fdb_latexmk
-/main.fls
-/main.log
-/main.out
+*.gz
+*.toc
+main.*
+!main.tex
+!main.pdf
+*.log

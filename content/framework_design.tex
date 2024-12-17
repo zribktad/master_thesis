@@ -72,7 +72,7 @@ external services, or specific state configurations.
     \item \textbf{Compliance with Coding Standards:}
     \begin{itemize}
         \item Adhere to coding best practices and standards to ensure code quality and readability.
-        \item Follow SOLID principles for maintainable and testable code.
+        \item Follow SOLID\footnote{The SOLID principles are a set of five design guidelines aimed at improving the clarity, flexibility, and maintainability of object-oriented software.} principles for maintainable and testable code.
     \end{itemize}
     
     \item \textbf{Seamless NUnit Integration:}
@@ -86,8 +86,41 @@ external services, or specific state configurations.
 
 \section{Framework Architecture}
 
-% Your content here.
+The architecture of the framework has been carefully designed to ensure scalability,
+maintainability, and seamless integration with existing unit testing workflows.
+It is structured into distinct layers,
+each fulfilling specific responsibilities while adhering to principles of modular design and separation of concerns.The following subsections describe the primary components of the architecture.
 
-\section{Extending NUnit}
+\subsection{Attributes Layer}
+The \textit{Attributes Layer} provides the interface for specifying and controlling test data preparation. It introduces two primary attributes that enhance test configurability and reusability.
 
-% Your content here.
+The first attribute, \texttt{UsePreparedDataParamsForAttribute}, is derived from \texttt{UsePreparedAttribute}.This attribute enables the definition of data preparation and teardown methods at both the class and method levels. 
+By supporting parameterized configuration, it facilitates the reuse of preparation logic across multiple test methods, thus reducing code duplication and improving maintainability.
+
+Complementing this is the \texttt{UsePreparedDataParamsAttribute}, which targets individual test methods. Unlike the previous attribute, it allows for precise control over data preparation specific to a particular test scenario. This attribute supports parameterized data injections and conditional logic, enabling dynamic and flexible preparation workflows without impacting the entire test class.
+
+\subsection{Data Handling Layer}
+The \textit{Data Handling Layer} is responsible for orchestrating the preparation, management, and cleanup of test data. This layer introduces key components to ensure the integrity and consistency of the testing environment.
+
+At the core of this layer is the \texttt{TestDataHandler} class, which automates the execution of preparation (\textit{DataUp}) and cleanup (\textit{DataDown}) methods. The handler enforces a deterministic execution order, ensuring that all preparatory logic is executed before a test runs, and cleanup operations are reliably performed afterward. Furthermore, it incorporates exception-handling mechanisms to guarantee proper cleanup even in cases where tests fail unexpectedly.
+
+The \texttt{TestDataPreparationStore} complements the handler by providing a centralized repository for managing data preparation instances associated with test methods. This store optimizes test execution through intelligent caching of prepared data, reducing redundant computations and improving performance. Additionally, it is implemented with thread safety to support concurrent test executions in multi-threaded environments.
+
+\subsection{Integration Layer}
+The \textit{Integration Layer} focuses on enhancing the efficiency of attribute execution and promoting modularity through service-oriented design. 
+The \texttt{TestAttributeCountStore} plays a critical role in ensuring the correct execution of custom attributes. It monitors the invocation of attributes applied to test methods, preventing duplicate executions of \textit{DataUp} and \textit{DataDown} methods when multiple attributes are stacked. This mechanism guarantees that all preparatory logic runs as expected while maintaining efficiency.
+
+To further decouple preparation logic, the framework leverages the \texttt{CaseProviderStore}, which acts as a service provider. This component supports dependency injection principles, allowing developers to register and retrieve services dynamically. Such an approach enables the framework to integrate seamlessly with existing dependency injection frameworks, such as \texttt{Microsoft.Extensions.DependencyInjection}, while remaining adaptable to diverse test environments.
+
+\section{NUnit Integration}
+The framework seamlessly integrates with NUnit by extending its lifecycle through custom hooks. This integration is achieved using NUnit's \texttt{ITestAction} interface, which provides methods to execute logic before and after test execution.
+
+The \texttt{BeforeTest} and \texttt{AfterTest} methods are overridden to inject data preparation steps (\textit{DataUp}) prior to test execution and to perform cleanup (\textit{DataDown}) afterward. This ensures that preparatory and teardown logic integrates seamlessly without disrupting NUnit’s native test execution flow. 
+
+To provide fine-grained control, the attributes specify \texttt{ActionTargets.Test}, indicating that the custom behaviors are applied to individual test methods. However, the architecture also supports extensibility to target entire test classes or namespaces, enabling developers to apply bulk preparation logic when required.
+
+\subsection{Parallel Execution Support}
+Given the growing importance of parallelism in modern testing frameworks, the architecture has been designed to ensure reliable behavior in NUnit's \textit{parallel execution mode}. All lifecycle hooks, data preparation stores, and service providers are implemented with thread safety guarantees. This ensures that test data preparation and cleanup operations are executed consistently, even when tests are run concurrently across multiple threads.
+
+\subsection{Summary}
+The framework's architecture combines modularity, scalability, and extensibility to deliver a robust solution for advanced test data preparation. By introducing dedicated layers for attributes, data handling, and integration, the design adheres to clean coding principles and fosters maintainability. Furthermore, its seamless integration with NUnit ensures compatibility with existing testing workflows, while support for parallel execution makes it well-suited for modern, high-performance testing environments.
