@@ -16,88 +16,127 @@ external services, or specific state configurations.
 \subsection*{Functional Requirements}
 
 \begin{itemize}
-    \item \textbf{Custom Data Preparation Attributes:}
-    {\sloppy
-    \begin{itemize}
-        \item Implement custom attributes to facilitate specific data setup and teardown processes for each test case.
-        \item Attributes should allow dynamic injection of test data and enable conditional test execution based on data state.
-    \end{itemize}
-    }
-    \item \textbf{Automated Test Data Handling:}
-    \begin{itemize}
-        \item Develop a \texttt{TestDataHandler} class to automate the execution of data preparation methods before and after tests, ensuring a consistent test environment.
-        \item Ensure that both simple and complex test data structures can be seamlessly prepared and injected.
-    \end{itemize}
-    
-    \item \textbf{Data Preparation Store:}
-    \begin{itemize}
-        \item Create a \texttt{TestDataPreparationStore} to maintain mappings of data preparation instances associated with test methods, enabling efficient data management.
-        \item Implement thread-safe access for concurrent test executions in multi-threaded environments.
-    \end{itemize}
-    
-    \item \textbf{Integration with NUnit Test Lifecycle:}
-    \begin{itemize}
-        \item Leverage NUnit's \texttt{ITestAction} interface to integrate custom behaviors into the test execution lifecycle, using methods like \texttt{BeforeTest} and \texttt{AfterTest}.
-        \item Ensure custom lifecycle hooks are compatible with NUnit's parallel test execution model.
-    \end{itemize}
-    
-    \item \textbf{Attribute Count Tracking:}
-    \begin{itemize}
-        \item Implement a \texttt{TestAttributeCountStore} to track the execution of custom attributes and ensure all data preparations are completed before test execution.
-        \item Prevent redundancy in data preparation execution for tests using multiple attributes.
-    \end{itemize}
-    
-    \item \textbf{Service Provider Utilization:}
-    \begin{itemize}
-        \item Use a service provider pattern to manage dependencies and services required for data preparation.
-        \item Support integration with dependency injection frameworks.
-    \end{itemize}
+	\item \textbf{Custom Data Preparation Attributes:}
+	      \begin{itemize}
+		      \item Implement distinct custom attributes for defining data preparation methods and for utilizing prepared data within tests.
+		      \item Ensure attributes for data preparation methods specify setup and teardown processes, supporting reuse across multiple test cases.
+		      \item Design attributes to allow the injection parameterized data, enabling differentiation for tests requiring similar preparation but with varying input parameters.
+		      \item Provide mechanisms for conditional test execution based on the prepared data state to ensure test reliability and flexibility.
+	      \end{itemize}
+
+	\item \textbf{Automated Test Data Handling:}
+	      \begin{itemize}
+		      \item Develop a mechanism to automate the execution of data preparation methods before and after tests, ensuring a consistent and reliable test environment.
+		      \item Ensure seamless preparation and injection of both simple and complex test data structures to support diverse testing scenarios.
+	      \end{itemize}
+
+	\item \textbf{Data Preparation Store:}
+	      \begin{itemize}
+		      \item Develop a centralized store to maintain mappings of data preparation instances associated with test methods, enabling efficient and organized data management.
+		      \item Ensure thread-safe access to support concurrent test executions in multi-threaded environments.
+	      \end{itemize}
+
+	\item \textbf{Integration with NUnit Test Lifecycle:}
+	      \begin{itemize}
+		      \item Integrate custom behaviors into the test execution lifecycle to include steps for data preparation and cleanup.
+		      \item Ensure that custom lifecycle hooks are compatible with parallel test execution to maintain consistency in multi-threaded scenarios.
+	      \end{itemize}
+
+	\item \textbf{Attribute Count Tracking:}
+	      \begin{itemize}
+		      \item Develop a mechanism to track the execution of custom attributes and ensure all necessary data preparations are completed before test execution begins.
+		      \item Avoid redundancy in data preparation by coordinating attribute behavior for tests with multiple attributes applied.
+	      \end{itemize}
+
+	\item \textbf{Service Provider Utilization:}
+	      \begin{itemize}
+		      \item Use a service provider pattern to manage dependencies and services required for data preparation.
+		      \item Support integration with dependency injection frameworks.
+	      \end{itemize}
+	\item \textbf{Interface Usage:}
+	      \begin{itemize}
+		      \item Define clear and reusable interfaces for data preparation and cleanup logic to promote consistency and scalability across the framework.
+		      \item Ensure interfaces allow flexibility for developers to implement custom preparation methods tailored to specific testing requirements.
+	      \end{itemize}
 \end{itemize}
 
 \subsection*{Non-Functional Requirements}
 
 \begin{itemize}
-    \item \textbf{Performance Efficiency:}
-    \begin{itemize}
-        \item Ensure minimal overhead is introduced during test execution to maintain optimal performance.
-        \item Optimize data preparation logic to minimize unnecessary computation or resource usage.
-    \end{itemize}
-    
-    \item \textbf{Modularity and Extensibility:}
-    \begin{itemize}
-        \item Design the framework with a modular architecture to facilitate easy maintenance and future enhancements.
-        \item Provide extension points for developers to customize or extend attributes and lifecycle handling.
-    \end{itemize}
-    
-    \item \textbf{Compliance with Coding Standards:}
-    \begin{itemize}
-        \item Adhere to coding best practices and standards to ensure code quality and readability.
-        \item Follow SOLID\footnote{The SOLID principles are a set of five design guidelines aimed at improving the clarity, flexibility, and maintainability of object-oriented software.} principles for maintainable and testable code.
-    \end{itemize}
-    
-    \item \textbf{Seamless NUnit Integration:}
-    \begin{itemize}
-        \item The extension should integrate smoothly with the existing NUnit framework without disrupting current testing workflows.
-        \item Support legacy NUnit test cases alongside the new extension.
-    \end{itemize}
+	\item \textbf{Performance Efficiency:}
+	      \begin{itemize}
+		      \item Ensure minimal overhead is introduced during test execution to maintain optimal performance.
+		      \item Optimize data preparation logic to minimize unnecessary computation or resource usage.
+	      \end{itemize}
+
+	\item \textbf{Modularity and Extensibility:}
+	      \begin{itemize}
+		      \item Design the framework with a modular architecture to facilitate easy maintenance and future enhancements.
+		      \item Provide extension points for developers to customize or extend attributes and lifecycle handling.
+	      \end{itemize}
+
+	\item \textbf{Compliance with Coding Standards:}
+	      \begin{itemize}
+		      \item Adhere to coding best practices and standards to ensure code quality and readability.
+		      \item Follow SOLID\footnote{The SOLID principles are a set of five design guidelines aimed at improving the clarity, flexibility, and maintainability of object-oriented software.} principles for maintainable and testable code.
+	      \end{itemize}
+
+	\item \textbf{Seamless NUnit Integration:}
+	      \begin{itemize}
+		      \item The extension should integrate smoothly with the existing NUnit framework without disrupting current testing workflows.
+		      \item Support legacy NUnit test cases alongside the new extension.
+	      \end{itemize}
+	\item \textbf{Documentation and User Guidance:}
+	      \begin{itemize}
+		      \item Provide comprehensive documentation, including user guides, examples, and FAQs, to simplify adoption and usage of the framework.
+		      \item Include in-line comments within the codebase to explain key implementation details and design choices.
+		      \item Offer troubleshooting steps and recommendations for common integration or usage challenges.
+	      \end{itemize}
 \end{itemize}
 
 % Your content here.
 
 \section{Framework Architecture}
 
-The architecture of the framework has been carefully designed to ensure scalability,
+The architecture of the framework is carefully designed to ensure scalability,
 maintainability, and seamless integration with existing unit testing workflows.
 It is structured into distinct layers,
-each fulfilling specific responsibilities while adhering to principles of modular design and separation of concerns.The following subsections describe the primary components of the architecture.
+each fulfilling specific responsibilities while adhering to principles of modular design and separation of concerns. The following subsections describe the primary components of the architecture.
+
 
 \subsection{Attributes Layer}
-The \textit{Attributes Layer} provides the interface for specifying and controlling test data preparation. It introduces two primary attributes that enhance test configurability and reusability.
 
-The first attribute, \texttt{UsePreparedDataParamsForAttribute}, is derived from \texttt{UsePreparedAttribute}.This attribute enables the definition of data preparation and teardown methods at both the class and method levels. 
-By supporting parameterized configuration, it facilitates the reuse of preparation logic across multiple test methods, thus reducing code duplication and improving maintainability.
+The \textit{Attributes Layer} is designed to facilitate the management of test data and the configuration of test frameworks. Almost every attribute in this layer serves as a directive indicating that a particular test case or method requires the preparation and use of specific data. The attributes provide a structured way to manage data setup and cleansing and ensure that the necessary  data conditions are met before and after test execution. The main reason to use attributes is to allow the programmer to extend the functionality of the NUnit framework and to ensure that there is no significant change in the process of how the tests are created and that the programmer does not need to spend too much effort to extend the knowledge of how the tests are created. The result is that testing will be almost the same as before the extension of the framework and that there will be no need to learn new procedures or approaches to testing.
 
-Complementing this is the \texttt{UsePreparedDataParamsAttribute}, which targets individual test methods. Unlike the previous attribute, it allows for precise control over data preparation specific to a particular test scenario. This attribute supports parameterized data injections and conditional logic, enabling dynamic and flexible preparation workflows without impacting the entire test class.
+
+\subsection*{Attributes for Data Preparation}
+
+The \textit{Attributes for Data Preparation} layer is designed to manage the setup and cleanup of test data within testing. The attributes serve as directives that indicate specific data requirements for test cases or methods. Provide a structured way to prepare, call, and remove prepared test data.  Ensure that the test environment is properly configured and that the conditions for test data are met before, during, and after test execution. This layer provides a unified approach to data setup manipulation that enables precise control over data preparation management, which is essential to maintain robustness and maintainability of test procedures.
+
+The attributes for data preparation for a class or method are different, but the data preparation structure is the same. This structure ensures a uniform approach to data preparation management, which is key to maintaining the robustness and maintainability of test practices. Instead of forcing programmers to implement the data preparation structure for each test method separately, it allows them to simply use the prepared data techniques and ensure that they are used correctly.
+Although the data preparation structure is the same for class-prepared and method-prepared data, there are differences in how these attributes are used and how they affect test scenarios.Attributes for preparing data for a class allow you to define methods for preparing data that are necessary for testing the whole class. The attributes ensure that the data preparation methods are properly configured and initialized according to the test scenario. The data preparation method attributes, allow more precise control over the preparation of data specific to a particular test scenario. 
+All attributes support parameterized data inputs, allowing resolution for tests that have similar preparation requirements but different input parameters. The addition of parameters ensures that the data preparation is appropriate to the specific test requirements and that the data preparation can be dynamically changed according to the needs of the test.
+
+The data preparation structure is created by the programmer independently. Consists of identification for which class or method the programmer wants to prepare the data to what the given attribute will help and enables the programmer to arrange the given structure to the class or method.
+
+
+
+\subsection*{Testing Attributes}
+
+Test attributes help define the test scenarios in which test data needs to be prepared and used. Each of the attributes provides unique properties that allow for different data processing configurations. The base test attribute determines if the framework is to be used at all for a given test case. Other attributes are dedicated to calling data preparation for different tests as well as subsequent data rollback. By defining the attributes for a test, it is possible to specify more precisely how the data should be prepared and used. In this way it is possible to adapt the data processing to the needs of the test and ensure that the data is prepared correctly.
+Ensure that the necessary services are configured and initialized according to the unique requirements of each test scenario.
+
+The attributes are divided into two main types. The first is an attribute that identifies that a specific test data is to be used for a given test method or class. Recognizable by the \textit{For} expression. The second type of attribute allows to call the prepared data directly without knowing which method or class is used in the test. The design allows the programmer to easily access the prepared data during test execution. Enables precise selection of data sources needed for a given test.
+
+In the above cases, we are still discussing calls to prepared data that have no parameters or don't need them. An extended version of these attributes are attributes that allow the use of parameters to define the preparation and manipulation of test data. The attributes allow more precise control over how the data is manipulated based on the specified parameters.  Such a structure ensures a systematic approach to test data management. The attributes containing the \textit{Params} expression in the name.
+
+\subsection*{Attributes of prepared data}
+
+Interfaces provide a guaranteed direction and enforce adherence to a specified structure; however, they can limit a programmer’s flexibility. To ensure that developers retain sufficient freedom while allowing prepared data to conform to the structure they envision, attributes were introduced. The attributes, designed to facilitate data preparation for tested methods or functions, indicate whether the operation involves the deployment of prepared data or its removal.
+
+The attributes are defined before the method responsible for handling the data. Their primary benefit lies in granting developers the ability to incorporate input parameters, enabling precise customization of data preparation and manipulation processes.
+The approach ensures data preparation and processing processes remain consistent with testing requirements, while allowing developers to tailor them to the specific needs of individual test scenarios.
+
 
 \subsection{Data Handling Layer}
 The \textit{Data Handling Layer} is responsible for orchestrating the preparation, management, and cleanup of test data. This layer introduces key components to ensure the integrity and consistency of the testing environment.
@@ -107,7 +146,7 @@ At the core of this layer is the \texttt{TestDataHandler} class, which automates
 The \texttt{TestDataPreparationStore} complements the handler by providing a centralized repository for managing data preparation instances associated with test methods. This store optimizes test execution through intelligent caching of prepared data, reducing redundant computations and improving performance. Additionally, it is implemented with thread safety to support concurrent test executions in multi-threaded environments.
 
 \subsection{Integration Layer}
-The \textit{Integration Layer} focuses on enhancing the efficiency of attribute execution and promoting modularity through service-oriented design. 
+The \textit{Integration Layer} focuses on enhancing the efficiency of attribute execution and promoting modularity through service-oriented design.
 The \texttt{TestAttributeCountStore} plays a critical role in ensuring the correct execution of custom attributes. It monitors the invocation of attributes applied to test methods, preventing duplicate executions of \textit{DataUp} and \textit{DataDown} methods when multiple attributes are stacked. This mechanism guarantees that all preparatory logic runs as expected while maintaining efficiency.
 
 To further decouple preparation logic, the framework leverages the \texttt{CaseProviderStore}, which acts as a service provider. This component supports dependency injection principles, allowing developers to register and retrieve services dynamically. Such an approach enables the framework to integrate seamlessly with existing dependency injection frameworks, such as \texttt{Microsoft.Extensions.DependencyInjection}, while remaining adaptable to diverse test environments.
@@ -115,7 +154,7 @@ To further decouple preparation logic, the framework leverages the \texttt{CaseP
 \section{NUnit Integration}
 The framework seamlessly integrates with NUnit by extending its lifecycle through custom hooks. This integration is achieved using NUnit's \texttt{ITestAction} interface, which provides methods to execute logic before and after test execution.
 
-The \texttt{BeforeTest} and \texttt{AfterTest} methods are overridden to inject data preparation steps (\textit{DataUp}) prior to test execution and to perform cleanup (\textit{DataDown}) afterward. This ensures that preparatory and teardown logic integrates seamlessly without disrupting NUnit’s native test execution flow. 
+The \texttt{BeforeTest} and \texttt{AfterTest} methods are overridden to inject data preparation steps (\textit{DataUp}) prior to test execution and to perform cleanup (\textit{DataDown}) afterward. This ensures that preparatory and teardown logic integrates seamlessly without disrupting NUnit’s native test execution flow.
 
 To provide fine-grained control, the attributes specify \texttt{ActionTargets.Test}, indicating that the custom behaviors are applied to individual test methods. However, the architecture also supports extensibility to target entire test classes or namespaces, enabling developers to apply bulk preparation logic when required.
 
