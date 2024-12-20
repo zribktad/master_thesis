@@ -100,9 +100,15 @@ external services, or specific state configurations.
 
 The architecture of the framework is carefully designed to ensure scalability,
 maintainability, and seamless integration with existing unit testing workflows.
+
+The framework architecture is divided into two main components. The first component focuses on data preparation, while the second encompasses the test case, which includes the tests themselves. Except for specific framework elements, the test case retains the same components as those used in NUnit testing. The framework extends the functionality of the test case by defining whether it should be executed, specifying the framework services required for the test case, and identifying the prepared data to be used for individual tests.
+
+Data preparation represents an additional feature compared to standard testing and requires developers to become familiar with its implementation when using the framework. The design of the data preparation component is structured to support both class-level and method-level test data preparation. The primary task for developers is to create a class associated, for example, with a specific tested method. The class does not require a constructor unless the developer requires dependencies on specific services. Instead, it only needs to define methods for setting up the data and for cleaning up the prepared data after testing.
+
+This architectural approach ensures that the framework provides added value through structured data preparation while maintaining compatibility with known NUnit-based test case practices. The framework's design is intended to be intuitive and easy to use, requiring minimal effort to adapt to the new data preparation features. The architecture is designed to be scalable and extensible, allowing developers to add new features and functionalities as needed. The framework's modular design ensures that each component can be easily replaced or extended without affecting the overall functionality of the system.
+
 It is structured into distinct layers,
 each fulfilling specific responsibilities while adhering to principles of modular design and separation of concerns. The following subsections describe the primary components of the architecture.
-
 
 \subsection{Attributes Layer}
 
@@ -119,8 +125,6 @@ All attributes support parameterized data inputs, allowing resolution for tests 
 
 The data preparation structure is created by the programmer independently. Consists of identification for which class or method the programmer wants to prepare the data to what the given attribute will help and enables the programmer to arrange the given structure to the class or method.
 
-
-
 \subsection*{Testing Attributes}
 
 Test attributes help define the test scenarios in which test data needs to be prepared and used. Each of the attributes provides unique properties that allow for different data processing configurations. The base test attribute determines if the framework is to be used at all for a given test case. Other attributes are dedicated to calling data preparation for different tests as well as subsequent data rollback. By defining the attributes for a test, it is possible to specify more precisely how the data should be prepared and used. In this way it is possible to adapt the data processing to the needs of the test and ensure that the data is prepared correctly.
@@ -136,6 +140,20 @@ Interfaces provide a guaranteed direction and enforce adherence to a specified s
 
 The attributes are defined before the method responsible for handling the data. Their primary benefit lies in granting developers the ability to incorporate input parameters, enabling precise customization of data preparation and manipulation processes.
 The approach ensures data preparation and processing processes remain consistent with testing requirements, while allowing developers to tailor them to the specific needs of individual test scenarios.
+
+**************
+\subsection{Interface Layer}
+The \textit{Interface Layer} consists of the interfaces that cover the preparation and management of test data and related services. The Layer ensures consistency and modularity in the way data is prepared for test scenarios, supporting a structured approach.
+
+Interfaces for preparing data for testing are designed for the class and method levels. These interfaces provide non-parametric methods for data staging and subsequent data cleansing, i.e the method to be run before and after the test.
+
+Interfaces for preparing data for testing are designed for the class and method levels. These interfaces provide non-parametric methods for data staging and subsequent data cleansing, i.e the method to be run before and after the test.
+
+In addition to data preparation, the interfaces layer contains mechanisms for managing test services. The interfaces extend the test case and add additional functionality to the framework.   One of them is used to register and initialize services in the container within the test framework. 
+The interface provides a structured resource that the classes for preparing the data accept and can use according to the developer's thinking.
+Another interface is for defining the databases to be used in the test case. 
+
+TODO
 
 
 \subsection{Data Handling Layer}
