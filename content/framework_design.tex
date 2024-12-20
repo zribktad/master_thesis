@@ -153,7 +153,7 @@ In addition to data preparation, the interfaces layer contains mechanisms for ma
 The interface provides a structured resource that the classes for preparing the data accept and can use according to the developer's thinking.
 Another interface is for defining the databases to be used in the test case. 
 
-TODO
+\todo{database}
 
 
 \subsection{Data Handling Layer}
@@ -180,6 +180,6 @@ Methods within the \texttt{ITestAction} interface, such as \texttt{BeforeTest} a
 For enhanced control over test behavior, the test targets are specified within the attributes, ensuring that the custom logic is applied to individual test methods. Moreover, the architecture is designed to support extensibility, enabling the targeting of entire test classes or namespaces, thereby allowing developers to apply bulk-processing logic as needed.
 
 \subsection{Parallel Execution Support}
-TODO
+\todo{Parallel execution support}
 Given the growing importance of parallelism in modern testing frameworks, the architecture has been designed to ensure reliable behavior in NUnit's \textit{parallel execution mode}. All lifecycle hooks, data preparation stores, and service providers are implemented with thread safety guarantees. This ensures that test data preparation and cleanup operations are executed consistently, even when tests are run concurrently across multiple threads.
 
