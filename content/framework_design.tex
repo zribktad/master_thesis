@@ -141,7 +141,7 @@ Interfaces provide a guaranteed direction and enforce adherence to a specified s
 The attributes are defined before the method responsible for handling the data. Their primary benefit lies in granting developers the ability to incorporate input parameters, enabling precise customization of data preparation and manipulation processes.
 The approach ensures data preparation and processing processes remain consistent with testing requirements, while allowing developers to tailor them to the specific needs of individual test scenarios.
 
-**************
+
 \subsection{Interface Layer}
 The \textit{Interface Layer} consists of the interfaces that cover the preparation and management of test data and related services. The Layer ensures consistency and modularity in the way data is prepared for test scenarios, supporting a structured approach.
 
@@ -157,27 +157,29 @@ TODO
 
 
 \subsection{Data Handling Layer}
-The \textit{Data Handling Layer} is responsible for orchestrating the preparation, management, and cleanup of test data. This layer introduces key components to ensure the integrity and consistency of the testing environment.
 
-At the core of this layer is the \texttt{TestDataHandler} class, which automates the execution of preparation (\textit{DataUp}) and cleanup (\textit{DataDown}) methods. The handler enforces a deterministic execution order, ensuring that all preparatory logic is executed before a test runs, and cleanup operations are reliably performed afterward. Furthermore, it incorporates exception-handling mechanisms to guarantee proper cleanup even in cases where tests fail unexpectedly.
 
-The \texttt{TestDataPreparationStore} complements the handler by providing a centralized repository for managing data preparation instances associated with test methods. This store optimizes test execution through intelligent caching of prepared data, reducing redundant computations and improving performance. Additionally, it is implemented with thread safety to support concurrent test executions in multi-threaded environments.
+The \textit{Data Handling Layer} is responsible for orchestrating the preparation, management, and cleanup of test data. The layer introduces key components to ensure the integrity and consistency of the testing environment.
+
+The core of the \textit{Data Handling Layer} is a system that automates the execution of methods for deploying prepared data and cleaning. The handler enforces a deterministic order of execution, ensuring that all preparatory logic is executed before the test is run and that cleanup operations are then reliably performed. In addition, the layer contains exception handling mechanisms that guarantee proper cleanup even in situations where tests fail unexpectedly.
+
+The \texttt{Preparation data store} complements the handler by providing a centralized repository for managing data preparation instances associated with test methods. The store optimizes test execution through caching of prepared data, reducing redundant computations and improving performance. Additionally, the store is implemented with thread safety to support concurrent test executions in multi-threaded environments.
 
 \subsection{Integration Layer}
-The \textit{Integration Layer} focuses on enhancing the efficiency of attribute execution and promoting modularity through service-oriented design.
-The \texttt{TestAttributeCountStore} plays a critical role in ensuring the correct execution of custom attributes. It monitors the invocation of attributes applied to test methods, preventing duplicate executions of \textit{DataUp} and \textit{DataDown} methods when multiple attributes are stacked. This mechanism guarantees that all preparatory logic runs as expected while maintaining efficiency.
+\textit{Integration Layer} aims to increase the efficiency of attribute execution and promote modularity through service-oriented design.
+The \texttt{Attribute Count Storage} is critical in ensuring proper execution of data preparation. The \texttt{Attribute Count Storage} monitors the invocation of attributes applied to test methods, preventing duplicate execution of methods for preparing and cleaning test data when multiple attributes are stored on top of each other. This mechanism ensures that all preparatory logic runs as expected while maintaining efficiency.
 
-To further decouple preparation logic, the framework leverages the \texttt{CaseProviderStore}, which acts as a service provider. This component supports dependency injection principles, allowing developers to register and retrieve services dynamically. Such an approach enables the framework to integrate seamlessly with existing dependency injection frameworks, such as \texttt{Microsoft.Extensions.DependencyInjection}, while remaining adaptable to diverse test environments.
+To further isolate the preparatory logic, is used the \texttt{Provider Store} framework, which acts as a service provider. This component supports dependency injection principles, allowing developers to dynamically register and load services in the test. This approach allows the framework to seamlessly integrate with existing dependency injection frameworks, such as \texttt{Microsoft.Extensions.DependencyInjection}.
+
 
 \section{NUnit Integration}
-The framework seamlessly integrates with NUnit by extending its lifecycle through custom hooks. This integration is achieved using NUnit's \texttt{ITestAction} interface, which provides methods to execute logic before and after test execution.
+The framework achieves seamless integration with NUnit by extending its lifecycle through the use of custom hooks. We facilitate this integration by implementing the \texttt{ITestAction} interface, which provides NUnit attributes with methods that enable the execution of logic both prior to and following the execution of a test.
 
-The \texttt{BeforeTest} and \texttt{AfterTest} methods are overridden to inject data preparation steps (\textit{DataUp}) prior to test execution and to perform cleanup (\textit{DataDown}) afterward. This ensures that preparatory and teardown logic integrates seamlessly without disrupting NUnit’s native test execution flow.
+Methods within the \texttt{ITestAction} interface, such as \texttt{BeforeTest} and \texttt{AfterTest}, are overridden to introduce steps for preparing data before test execution, as well as performing post-test cleanup and managing other services invoked and instantiated by the framework. This approach ensures that the data preparation and teardown processes are smoothly incorporated into the test execution flow without disrupting the inherent structure of NUnit's testing lifecycle.
 
-To provide fine-grained control, the attributes specify \texttt{ActionTargets.Test}, indicating that the custom behaviors are applied to individual test methods. However, the architecture also supports extensibility to target entire test classes or namespaces, enabling developers to apply bulk preparation logic when required.
+For enhanced control over test behavior, the test targets are specified within the attributes, ensuring that the custom logic is applied to individual test methods. Moreover, the architecture is designed to support extensibility, enabling the targeting of entire test classes or namespaces, thereby allowing developers to apply bulk-processing logic as needed.
 
 \subsection{Parallel Execution Support}
+TODO
 Given the growing importance of parallelism in modern testing frameworks, the architecture has been designed to ensure reliable behavior in NUnit's \textit{parallel execution mode}. All lifecycle hooks, data preparation stores, and service providers are implemented with thread safety guarantees. This ensures that test data preparation and cleanup operations are executed consistently, even when tests are run concurrently across multiple threads.
 
-\subsection{Summary}
-The framework's architecture combines modularity, scalability, and extensibility to deliver a robust solution for advanced test data preparation. By introducing dedicated layers for attributes, data handling, and integration, the design adheres to clean coding principles and fosters maintainability. Furthermore, its seamless integration with NUnit ensures compatibility with existing testing workflows, while support for parallel execution makes it well-suited for modern, high-performance testing environments.
