@@ -2,22 +2,34 @@
 
 \chapter{State of the Art\label{chap:state_of_the_art}}
 
-...existing code...
+\todo{}
 
 \section{Current Software Testing Practices}
+\todo{}
 
-% Your content here.
-
-\section{Existing Frameworks}
+\section{Existing Technologies}
 
 \subsection{IntelliTest Framework}
+IntelliTest\footnote{\href{https://learn.microsoft.com/en-us/visualstudio/test/intellitest-manual/?view=vs-2022}{https://learn.microsoft.com/en-us/visualstudio/test/intellitest-manual/?view=vs-2022}} is a tool for automated test generation integrated into Microsoft Visual Studio. IntelliTest leverages dynamic symbolic execution to analyze the code under test and produce parameterized unit tests. IntelliTest methodology systematically explores various execution paths in the code, covering edge cases and unexpected scenarios.
 
-% Your content here.
+The primary advantage of IntelliTest lies in its ability to automatically generate input data for test cases, thereby reducing the manual effort required for data preparation. In addition, it identifies untested branches in the code, facilitating improved code coverage.
+
+Despite its benefits, IntelliTest is primarily limited to the .NET ecosystem and focuses more on generating input data than providing reusable mechanisms for managing complex test data dependencies. This limitation makes it less suitable for scenarios where test data preparation involves interaction with external systems or requires dynamic data generation based on specific contexts.
 
 \subsection{AutoFixture Framework}
 
-% Your content here.
+AutoFixture\footnote{\href{https://autofixture.github.io/}{https://autofixture.github.io/}} is a .NET library designed to simplify the creation of test objects. By automatically generating instances of classes and populating their properties with random data, AutoFixture minimizes the time and effort required to set up test environments.
+
+A significant advantage of AutoFixture is its ability to generate authentic test data through the customization and configuration processes. Developers can establish specific rules or constraints for data generation, thereby ensuring that the data comply with the specifications of their tests. The functionality of AutoFixture is especially advantageous in contexts where test data encompass intricate object hierarchies or interdependencies.
+
+However, AutoFixture focuses primarily on data generation for individual tests. AutoFixture lacks a centralized approach for managing and reusing data across multiple tests. Furthermore, it does not address situations that require the preparation of dynamic test data based on the execution context or external factors.
+
+\subsection{Mockaroo}
+
+Mockaroo\footnote{\href{https://www.mockaroo.com}{https://www.mockaroo.com}} is an online tool that generates large datasets for testing purposes. Although Mockaroo is not a C\#-specific framework, it can be integrated with C\# testing frameworks by exporting data in formats such as JSON, CSV, or SQL. Mockaroo allows developers to define complex data structures and generate realistic data for testing, including names, addresses, and custom business data.
+
+Mockaroo is ideal for scenarios in which large and complex datasets are required for testing and can be particularly useful when testing databases or APIs that require realistic data for validation.
+
 
 \section{Research Gaps}
-
-% Your content here.
+\todo{}

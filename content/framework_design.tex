@@ -2,7 +2,7 @@
 
 \chapter{Framework Design\label{chap:framework_design}}
 
-...existing code...
+This chapter provides a detailed analysis of the framework's requirements, its architecture, and the individual components that facilitate the fulfillment of performance, modularity, and seamless integration requirements. The solution is composed of several foundational layers that complement each other, offering flexibility for diverse use cases. The primary goal is to ensure that the framework effectively supports various testing scenarios with differing data requirements.
 
 \section{Framework Requirements}
 
@@ -44,7 +44,7 @@ external services, or specific state configurations.
 
 	\item \textbf{Attribute Count Tracking:}
 	      \begin{itemize}
-		      \item Develop a mechanism to track the execution of custom attributes and ensure all necessary data preparations are completed before test execution begins.
+		      \item Develop a mechanism to track the execution of custom attributes and ensure that all necessary data preparations are completed before testing execution begins.
 		      \item Avoid redundancy in data preparation by coordinating attribute behavior for tests with multiple attributes applied.
 	      \end{itemize}
 
@@ -56,7 +56,7 @@ external services, or specific state configurations.
 	\item \textbf{Interface Usage:}
 	      \begin{itemize}
 		      \item Define clear and reusable interfaces for data preparation and cleanup logic to promote consistency and scalability across the framework.
-		      \item Ensure interfaces allow flexibility for developers to implement custom preparation methods tailored to specific testing requirements.
+		      \item Ensure that the interfaces allow developers to implement custom preparation methods tailored to specific testing requirements.
 	      \end{itemize}
 \end{itemize}
 
@@ -77,8 +77,8 @@ external services, or specific state configurations.
 
 	\item \textbf{Compliance with Coding Standards:}
 	      \begin{itemize}
-		      \item Adhere to coding best practices and standards to ensure code quality and readability.
-		      \item Follow SOLID\footnote{The SOLID principles are a set of five design guidelines aimed at improving the clarity, flexibility, and maintainability of object-oriented software.} principles for maintainable and testable code.
+		      \item Adhere to best practices and standards for coding to ensure code quality and readability.
+		      \item Follow the \href{https://en.wikipedia.org/wiki/SOLID}{SOLID}\footnote{The SOLID principles are a set of five design guidelines aimed at improving the clarity, flexibility, and maintainability of object-oriented software.} principles for maintainable and testable code.
 	      \end{itemize}
 
 	\item \textbf{Seamless NUnit Integration:}
@@ -88,8 +88,8 @@ external services, or specific state configurations.
 	      \end{itemize}
 	\item \textbf{Documentation and User Guidance:}
 	      \begin{itemize}
-		      \item Provide comprehensive documentation, including user guides, examples, and FAQs, to simplify adoption and usage of the framework.
-		      \item Include in-line comments within the codebase to explain key implementation details and design choices.
+		      \item Provide comprehensive documentation, including user guides, examples, and FAQs, to simplify the adoption and usage of the framework.
+		      \item Include inline comments within the codebase to explain key implementation details and design choices.
 		      \item Offer troubleshooting steps and recommendations for common integration or usage challenges.
 	      \end{itemize}
 \end{itemize}
@@ -139,15 +139,12 @@ In the above cases, we are still discussing calls to prepared data that have no 
 Interfaces provide a guaranteed direction and enforce adherence to a specified structure; however, they can limit a programmer’s flexibility. To ensure that developers retain sufficient freedom while allowing prepared data to conform to the structure they envision, attributes were introduced. The attributes, designed to facilitate data preparation for tested methods or functions, indicate whether the operation involves the deployment of prepared data or its removal.
 
 The attributes are defined before the method responsible for handling the data. Their primary benefit lies in granting developers the ability to incorporate input parameters, enabling precise customization of data preparation and manipulation processes.
-The approach ensures data preparation and processing processes remain consistent with testing requirements, while allowing developers to tailor them to the specific needs of individual test scenarios.
-
+The approach ensures that data preparation and processing processes remain consistent with testing requirements while allowing developers to tailor them to the specific needs of individual test scenarios.
 
 \subsection{Interface Layer}
 The \textit{Interface Layer} consists of the interfaces that cover the preparation and management of test data and related services. The Layer ensures consistency and modularity in the way data is prepared for test scenarios, supporting a structured approach.
 
-Interfaces for preparing data for testing are designed for the class and method levels. These interfaces provide non-parametric methods for data staging and subsequent data cleansing, i.e the method to be run before and after the test.
-
-Interfaces for preparing data for testing are designed for the class and method levels. These interfaces provide non-parametric methods for data staging and subsequent data cleansing, i.e the method to be run before and after the test.
+Interfaces for preparing data for testing are designed for the class and method levels. These interfaces provide nonparametric methods for data staging and subsequent data cleansing, for example, the method to be run before and after the test.
 
 In addition to data preparation, the interfaces layer contains mechanisms for managing test services. The interfaces extend the test case and add additional functionality to the framework.   One of them is used to register and initialize services in the container within the test framework. 
 The interface provides a structured resource that the classes for preparing the data accept and can use according to the developer's thinking.
@@ -155,21 +152,19 @@ Another interface is for defining the databases to be used in the test case.
 
 \todo{database}
 
-
 \subsection{Data Handling Layer}
-
 
 The \textit{Data Handling Layer} is responsible for orchestrating the preparation, management, and cleanup of test data. The layer introduces key components to ensure the integrity and consistency of the testing environment.
 
 The core of the \textit{Data Handling Layer} is a system that automates the execution of methods for deploying prepared data and cleaning. The handler enforces a deterministic order of execution, ensuring that all preparatory logic is executed before the test is run and that cleanup operations are then reliably performed. In addition, the layer contains exception handling mechanisms that guarantee proper cleanup even in situations where tests fail unexpectedly.
 
-The \texttt{Preparation data store} complements the handler by providing a centralized repository for managing data preparation instances associated with test methods. The store optimizes test execution through caching of prepared data, reducing redundant computations and improving performance. Additionally, the store is implemented with thread safety to support concurrent test executions in multi-threaded environments.
+The \texttt{Preparation data store} complements the handler by providing a centralized repository to manage data preparation instances associated with test methods. The store optimizes test execution through caching of prepared data, reducing redundant computations and improving performance. Additionally, the store is implemented with thread safety to support concurrent test executions in multithreaded environments.
 
 \subsection{Integration Layer}
 \textit{Integration Layer} aims to increase the efficiency of attribute execution and promote modularity through service-oriented design.
 The \texttt{Attribute Count Storage} is critical in ensuring proper execution of data preparation. The \texttt{Attribute Count Storage} monitors the invocation of attributes applied to test methods, preventing duplicate execution of methods for preparing and cleaning test data when multiple attributes are stored on top of each other. This mechanism ensures that all preparatory logic runs as expected while maintaining efficiency.
 
-To further isolate the preparatory logic, is used the \texttt{Provider Store} framework, which acts as a service provider. This component supports dependency injection principles, allowing developers to dynamically register and load services in the test. This approach allows the framework to seamlessly integrate with existing dependency injection frameworks, such as \texttt{Microsoft.Extensions.DependencyInjection}.
+In order to improve the separation of preparatory logic, the \texttt{Provider Store} framework is employed as a service provider. This component facilitates the implementation of dependency injection principles, enabling developers to dynamically register and incorporate services during testing. This methodology permits the framework to integrate effortlessly with established dependency injection frameworks, such as \texttt{Microsoft.Extensions.DependencyInjection}.
 
 
 \section{NUnit Integration}
@@ -177,7 +172,7 @@ The framework achieves seamless integration with NUnit by extending its lifecycl
 
 Methods within the \texttt{ITestAction} interface, such as \texttt{BeforeTest} and \texttt{AfterTest}, are overridden to introduce steps for preparing data before test execution, as well as performing post-test cleanup and managing other services invoked and instantiated by the framework. This approach ensures that the data preparation and teardown processes are smoothly incorporated into the test execution flow without disrupting the inherent structure of NUnit's testing lifecycle.
 
-For enhanced control over test behavior, the test targets are specified within the attributes, ensuring that the custom logic is applied to individual test methods. Moreover, the architecture is designed to support extensibility, enabling the targeting of entire test classes or namespaces, thereby allowing developers to apply bulk-processing logic as needed.
+For enhanced control over test behavior, test targets are specified within the attributes, ensuring that custom logic is applied to individual test methods. Moreover, the architecture is designed to support extensibility, enabling the targeting of entire test classes or namespaces, thereby allowing developers to apply bulk-processing logic as needed.
 
 \subsection{Parallel Execution Support}
 \todo{Parallel execution support}

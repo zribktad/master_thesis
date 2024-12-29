@@ -1,39 +1,207 @@
 \chapter{Preliminaries\label{chap:preliminaries}}
 
-...existing code...
-
-\section{Software Testing Concepts}
-
-% Your content here.
+The Preliminaries chapter serves as an introduction to the foundational concepts, tools, and methodologies that are relevant to the work presented in this work. This chapter provides a brief overview of the essential background information needed to understand the subsequent content, providing context for the more detailed discussions that follow. 
 
 \section{Overview of C\#}
 
-% Your content here.
+C\# is a static-typed, multi-paradigm language developed by Microsoft within the .NET framework. Initially launched in 2000, C\# was intended to provide the robustness and efficiency required for complex applications while maintaining simplicity and productivity. C\# architecture supports the development of scalable and maintainable software, ranging from standalone desktop applications to sophisticated web services and cloud-based systems.
 
-\section{\.NET Testing Ecosystem}
+The language distinguishes itself through features such as type safety, garbage collection, and comprehensive support for object-oriented principles. Furthermore, C\# integrates seamlessly with the .NET runtime, facilitating interoperability between multiple programming languages and platforms. The features of the C\# language make it a versatile and powerful tool in contemporary software development.
 
-% Your content here.
+\subsection{The Role of Interfaces in C\#}
 
-\section{Next Unit Testing Framework}
+Interfaces\footnote{\href{https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/interfaces}{Interface definition by Microsoft}} are foundational constructs in C\# that specify a contract that defines a set of members, including methods, properties, events or indexers, without implementation details. The abstraction of the interface supports a decoupled design, allowing developers to clearly define the boundaries between components. Interfaces are central to object-oriented programming in C\#, enabling polymorphism and adhering to the substitution principle, where multiple implementations of an interface can be used interchangeably.
 
-% Your content here.
+The use of interfaces in software design improves modularity and extensibility. For example, interfaces are often employed in API definitions, enabling cohesive interaction between disparate systems or components. A notable addition introduced in C\# 8.0 is the ability of the interfaces to include default implementations, allowing developers to provide fundamental functionality without breaking backward compatibility. This feature highlights the language's ongoing evolution to meet modern programming needs.
 
-\section{Screenplay Pattern}
+\subsection{Attributes and Metadata in C\#}
 
-% Your content here.
+The attributes\footnote{\href{https://learn.microsoft.com/en-us/dotnet/csharp/advanced-topics/reflection-and-attributes/}{Attributes definition by Microsoft}} in C\# are declarative constructs that allow developers to embed metadata within assemblies, classes, methods, and other elements of the program. The metadata provides supplementary information that can influence the behavior of a program during run-time or compile-time. Attributes are a key mechanism for declarative programming, allowing behaviors to be specified through annotations rather than imperative code.
 
-\subsection{Behavior-Driven Development}
-\subsubsection{Definition}
-\ac{BDD} is a software development methodology that focuses on defining the behavior of a system in terms of business requirements. It encourages collaboration between developers, testers, and business stakeholders to ensure that the system meets the desired functionality and provides value to the end users.
+The attributes serve various purposes. Built-in attributes, such as \texttt{[Serializable]} and \texttt{[Obsolete]}, simplify tasks by marking elements for serialization or flagging deprecated functionality. Custom attributes extend this capability, allowing developers to define domain-specific metadata. These custom attributes, implemented as classes derived from \texttt{System.Attribute}, support specialized use cases such as runtime validation or configuration of object-relational mappings.
+
+The interaction between attributes and reflection in C\# is particularly notable. Reflection enables programmers to dynamically query and manipulate metadata, a feature widely used in frameworks like ASP.NET\footnote{ASP.NET is a framework for building dynamic, server-side web applications}, where attributes configure routing, data annotations, and other essential behaviors. Consequently, attributes are indispensable for building flexible and adaptive systems.
+
+\subsection{Advanced Language Features}
+In addition to interfaces and attributes, the C\# programming language includes a variety of sophisticated features that increase its expressiveness and functional efficiency:
+
+\begin{itemize} 
+\item \textbf{Generics:} Facilitate the creation of reusable and type-safe data structures and algorithms while maintaining high performance. 
+\item \textbf{LINQ (Language Integrated Query):} Provides a declarative syntax for querying data collections, databases, and other sources, improving code clarity and reducing complexity. 
+\item \textbf{Asynchronous Programming:} Enabled through the \texttt{async} and \texttt{await} keywords, simplifying the development of non-blocking and responsive applications. 
+\item \textbf{Event-Driven Programming:} Supported by delegates and events, offering robust mechanisms for implementing observer patterns and managing asynchronous communication. \end{itemize}
+
+These features demonstrate the flexibility and capability of C\#, equipping developers with tools to address a wide variety of programming challenges.
+
+\subsection{Front-End Development with C\#}
+
+C\# is predominantly recognized for its extensive application in back-end programming. However, its functionalities have been significantly broadened to encompass the front-end development arena, primarily due to the advent and implementation of frameworks such as Blazor, Forms, and Unity. These frameworks facilitate the construction of sophisticated user interfaces and interactive components, thereby enhancing the versatility and applicability of C\# in different development paradigms.
+
+\subsubsection{Blazor for Web Development}  
+Blazor allows developers to build web applications using C\# instead of JavaScript. Blazor supports both server-side and client-side execution, enabling interactive web applications with shared code between the client and the server.
+\subsubsection{Cross-Platform Development with Xamarin.Forms and MAUI}  
+Xamarin.Forms enables the creation of native user interfaces for iOS, Android, and Windows with a shared C\# codebase, supporting features such as custom renderers and the MVVM \footnote{Model-View-ViewModel, a software architectural pattern used for designing the structure of user interfaces, particularly in desktop and mobile applications.} pattern for easier app maintenance. 
+Xamarin.Forms has evolved into \ac{MAUI}, representing an integral part of the next-generation cross-platform development framework provided by the .NET ecosystem. 
+\ac{MAUI} extends the foundational work established by Xamarin.Forms by offering advanced functionalities, including support for an expanded range of platforms such as macOS and Linux. \ac{MAUI} serves as a comprehensive framework for developing cross-platform applications, minimizing the need for platform-specific code and improving the development experience. Through \ac{MAUI}, developers have the ability to compose a singular codebase for applications intended for mobile and desktop devices, utilizing the capabilities of C\# and.NET across all platforms.
+
+\subsubsection{Desktop UI with WPF and WinUI}  
+\ac{WPF} \footnote{Graphical subsystem for rendering user interfaces in Windows applications.} and \ac{WinUI} \footnote{Modern user interface framework for creating native Windows applications with advanced UI elements and better performance}are used to develop desktop applications in C\#. \ac{WPF} utilizes XAML \footnote{Extensible Application Markup Language} for the design of the user interface, while \ac{WinUI}  offers modern user interface elements and improved performance for Windows applications.
+
+\subsubsection{Gaming with Unity}
+
+Unity is a robust game development engine that employs C\# for scripting, facilitating the creation of 2D and 3D games. Unitu is equipped with capabilities for cross-platform deployment, allowing games to operate on iOS, Android, Windows, macOS, and gaming consoles. The engine furnishes tools for real-time rendering, physics simulations, and complex animations, rendering it exemplary for developing immersive and interactive game experiences. The component-based architecture of Unity enables developers to attach C\# scripts to game objects in order to regulate their behavior and interactions. Due to its comprehensive documentation and active community, Unity is favored as a platform for constructing games across diverse platforms.
+
+\section{Software Testing Concepts}
+
+Software testing is a critical activity in the software development life cycle, aimed at ensuring the correctness, quality, and performance of a software system. Software testing involves the execution of software to detect defects, assess its functionality, and validate that a software meets the specified requirements. Testing can be performed at various stages of the development process to identify issues early and prevent the introduction of defects into the system.
+
+Software testing is typically categorized into several distinct types, each focusing on different aspects of software behavior.
+
+\begin{itemize}
+    \item \textbf{Unit Testing:} This type of testing focuses on evaluating individual components or functions of the system in isolation. Unit tests ensure that each unit of code performs as expected, which helps to prevent errors at the earliest stages of development.
+    \item \textbf{Integration Testing:} After individual components have been verified, integration testing ensures that multiple components or systems interact as intended. Verifies data flow, communication between modules, and the system behavior when various components are combined.
+    \item \textbf{System Testing:} System testing involves testing the complete system as a whole, ensuring that all components work seamlessly. Validates the functionality of the entire software and the compliance with the defined requirements and specifications.
+    \item \textbf{Acceptance Testing:} Acceptance Testing is carried out to verify whether the software meets the business requirements and expectations of the end users. Acceptance testing is often performed by users or representatives to determine if the system is ready for deployment.
+    \item \textbf{Regression Testing:} Regression testing is performed after code changes, bug fixes, or enhancements to features. The primary purpose of regression testing is to ensure that new changes do not introduce unwanted side effects or break existing functionality in the system.
+    \item \textbf{Performance Testing:} Performance testing evaluates the responsiveness, stability, and scalability of the system under varying loads. Performance testing includes load testing, stress testing, and scalability testing to identify potential performance bottlenecks and ensure the system performs efficiently under real-world conditions.
+\end{itemize}
+
+The process of software testing is not limited to the detection of defects. When defects are identified during any phase of testing, a structured process is followed to diagnose, isolate, and correct the issue. The defect is typically logged in a defect tracking system, where it is categorized and prioritized based on its severity. The development team then analyzes the root cause of the issue, applies a solution, and re-initiates testing to confirm that the problem has been resolved and no new issues have emerged.
+
+The development process is inherently iterative, particularly in agile environments. Once a defect is discovered, the system undergoes debugging, corrections, and another round of testing to ensure that the changes made do not negatively impact the overall system. The iterative process of detection, diagnosis, resolution, and validation contributes to the continuous improvement and reliability of the software.
+
+\section{.NET Testing Ecosystem}
+
+The .NET ecosystem provides a comprehensive framework for software testing, offering a variety of tools and libraries designed to support testing across different stages of development. The. NET testing ecosystem facilitates the implementation of a wide range of testing practices, including unit testing, integration testing, and end-to-end testing, thus ensuring software reliability and robustness.
+
+Key components of the .NET testing ecosystem include:
+
+\begin{itemize}
+    \item \textbf{Unit Testing Frameworks:} .NET supports several unit testing frameworks, such as NUnit, MSTest, and xUnit. These frameworks allow developers to automate the testing of individual components and ensure that they function correctly in isolation from the rest of the system.
+    \item \textbf{Mocking Libraries:} Libraries such as Moq and NSubstitute enable the creation of mock objects to simulate dependencies, facilitating isolated and focused tests. These tools are especially useful in unit testing when direct dependencies need to be replaced with controllable substitutes.
+    \item \textbf{Continuous Integration and Testing (CI/CT):} The .NET ecosystem integrates seamlessly with CI/CD pipelines, using tools like Azure DevOps, Jenkins, and GitHub Actions. These platforms automate the testing process, ensuring that each code change is verified through a series of automated tests before being integrated into the main codebase.
+\end{itemize}
+
+Testing within the .NET ecosystem is aligned with modern software development practices such as Test-Driven Development (TDD) and Behavior-Driven Development (BDD). TDD emphasizes writing tests before code, ensuring that every piece of code developed is covered by automated tests. BDD, on the other hand, focuses on collaboration between developers, testers, and business stakeholders, ensuring that the system meets user requirements from the outset.
+
+\section{NUnit Testing Framework}
+
+NUnit is a prevalently utilized unit testing framework within the .NET ecosystem. NUnit is engineered to be straightforward, extensible, and appropriate for applications of varying scales ranging from small to extensive. NUnit facilitates test-driven development by offering instruments for crafting automated tests that ascertain the accuracy of code.
+
+The key features of NUnit include:
+
+\begin{itemize}
+    \item \textbf{Assertions:} NUnit offers a broad set of assertions to verify various conditions, including equality, null checks, and exception handling. Assertions are integral to validating expected outcomes and ensuring correctness in unit tests.
+    \item \textbf{Test Runners:} NUnit supports multiple test runners, such as the NUnit Console Runner and integration with Visual Studio Test Explorer. These runners enable the execution of test cases and provide detailed reports, which can be analyzed to assess test coverage and results.
+    \item \textbf{Attribute-Based Testing:} NUnit uses attributes to annotate test methods, initialization methods, and cleanup methods. For example, \texttt{[Test]} marks a test method, while \texttt{[SetUp]} and \texttt{[TearDown]} define setup and teardown routines, respectively.
+    \item \textbf{Parameterized Tests:} NUnit allows the creation of parameterized tests, where the same test method is executed with different sets of input data. This feature is particularly useful for validating functions with multiple input variations and edge cases.
+    \item \textbf{Parallel Test Execution:} NUnit supports parallel test execution, which helps to reduce the overall test run time by running independent tests concurrently. This feature is beneficial for large test suites, where execution speed is a key consideration.
+\end{itemize}
+
+NUnit integrates well with mocking frameworks, such as Moq, to facilitate the isolation of dependencies and enable comprehensive unit tests. The framework also supports integration with continuous integration tools, ensuring that automated tests are executed as part of the build process in a CI/CD pipeline.
+
+The flexibility, user-friendliness, and engaged community support of NUnit substantiate its reliability and efficacy as a testing tool within the .NET ecosystem, thereby fostering a significant focus on quality assurance and test automation.
+
+
+\section{Screenplay Pattern}\label{sub:Screenplay_pattern}
+
+The Screenplay Pattern is a modern approach to automated test design that emphasizes reusability, readability, and modularity. Unlike traditional testing strategies that often rely on recording or scripting workflows, the Screenplay Pattern organizes tests around the tasks that an actor performs to achieve a specific goal. The Screenplay Pattern design fosters a more natural alignment between tests and real-world user interactions, making it particularly effective for complex systems and behavior-driven development practices. 
+
+The actors in the screenplay pattern represent users or entities that interact with the system under test. Each actor performs tasks, which are modeled as reusable components that encapsulate the necessary actions to achieve a goal. The pattern promotes a clear separation of concerns, where tests focus on defining the behavior of the system without delving into implementation details. The abstraction of a Screenplay Pattern enhances the test maintainability and scalability.
+
+The Screenplay Pattern focuses on a clear separation between functional objectives and implementation strategies, allowing test components to be reused across different scenarios. Modularity reduces redundancy and simplifies updates as the requirements evolve. Enhanced comprehensibility ensures that tests are more aligned with workflows understood by all stakeholders, thereby supporting collaboration across teams.  
+
+The adoption of the Screenplay Pattern requires a shift from procedural test design to behavior-oriented modeling. Despite the conceptual adjustment needed, the benefits of improved reusability, scalability, and alignment with user-centric principles make the methodology highly advantageous for modern software projects.
+Key benefits of the Screenplay Pattern include:
+\begin{itemize}
+    \item Increased modularity through the use of reusable tasks.
+    \item Improved readability by focusing on what the system should do, not how it does it.
+    \item Improved communication between developers, testers, and business stakeholders by providing a common framework to discuss the behavior of the system.
+\end{itemize}
+
+The Screenplay Pattern is particularly suitable for teams adopting \ac{BDD}, as it naturally integrates with the definition of system behavior in terms of business requirements.
+
+\subsection{Behavior-Driven Development}\label{sub:BDD}
+
+The methodology described in \ac{BDD} represents a collaborative approach to software development, effectively integrating specification, development, and testing into a unified process. Fundamentally, \ac{BDD} endeavors to articulate software behavior through user-centric requirements, depicted in a structured and natural language format. This methodology promotes congruence between developers, testers, and business stakeholders, thus ensuring that the software delivered meets both functional and non-functional requirements.
+
+\ac{BDD} emphasizes the creation of executable specifications, which act as both documentation and automated tests. These specifications are typically structured in the "Given-When-Then" format:
+\begin{itemize}
+    \item \textbf{Given:} Establishes the initial conditions or context of the scenario. 
+    \item \textbf{When:} Describes the event or action that triggers the behavior under test.
+    \item \textbf{Then:} Defines the expected outcome or system state resulting from the action.
+\end{itemize}
+
+The methodology facilitates iterative development by integrating systematic feedback cycles and promoting collective understanding among all stakeholders. By redirecting the emphasis from technical specifications to user expectations, \ac{BDD} diminishes ambiguity and improves the precision of requirements.
+
+\subsubsection{Creating a BDD Test}
+
+The initiation of a \ac{BDD} test necessitates the definition of the feature utilizing the Gherkin language, which offers a structured syntax in natural language to delineate the anticipated behavior of the system. The syntax of Gherkin is organized around three principal elements: \texttt{Given}, \texttt{When}, and \texttt{Then}, which respectively articulate the preliminary context, the action or event, and the anticipated result.
+\begin{enumerate}
+
+\item \textbf{Defining the Feature:} The initial procedure in formulating a BDD test involves the specification of the feature. This is accomplished using the \texttt{Feature} keyword, which provides a comprehensive description of the functionality subject to evaluation. For example, in the context of a basic calculator, the feature description might be expressed as follows.
+Example: \begin{verbatim}
+Feature: Basic Calculator
+ As a user
+ I want to perform basic arithmetic operations
+ So that I can calculate results efficiently
+\end{verbatim}
+
+\item \textbf{Writing Scenarios:} After the feature is defined, one or more scenarios are written to specify particular behaviors. Each scenario details the steps involved in achieving a specific outcome. The \texttt{Given} step defines the initial conditions, the \texttt{When} step describes the action or event that triggers the behavior, and the \texttt{Then} step outlines the expected result.
+
+Example scenario for addition:
+\begin{verbatim}
+    Scenario: Adding two numbers
+     Given I have entered 5 into the calculator
+     When I press the "+" button
+     And I enter 3
+     Then the result should be 8
+\end{verbatim}
+
+Example scenario for subtraction:
+\begin{verbatim}
+    Scenario: Subtracting two numbers
+     Given I have entered 10 into the calculator
+     When I press the "-" button
+     And I enter 4
+     Then the result should be 6
+\end{verbatim}
+
+\item \textbf{Implementing Step Definitions:} After drafting the feature and scenarios in Gherkin, the subsequent phase involves developing the step definitions. These step definitions establish the connection between the Gherkin steps and the specific code responsible for interacting with the system being tested. With regard to the calculator, this process may include imitating user input actions or calling upon methods that execute the related arithmetic operations.
+\end{enumerate}
+
+Widely used \ac{BDD} frameworks like \href{https://cucumber.io}{Cucumber}, \href{https://specflow.org/}{SpecFlow}, and \href{https://behave.readthedocs.io/en/latest/#}{Behave}, enable teams to automate these specifications, keeping them testable throughout the project lifecycle. Combining BDD with automated testing frameworks further aids in continuous integration and delivery, thus enhancing the overall quality of the software.
 
 \subsection{Business-Objective-Action}
-\subsubsection{Definition}
 
-The \ac{BOA} pattern is a structured approach to defining and organizing test cases based on business objectives and actions. It helps ensure that tests are aligned with business goals and provide meaningful feedback on the system's behavior.
+The \ac{BOA} pattern represents a systematic methodology for structuring tests by aligning them with business objectives and the necessary actions to achieve these objectives. The \ac{BOA} approach ensures that each test is purpose-driven and yields actionable insights into the system's behavior. The \ac{BOA} pattern is especially effective in settings where the emphasis is on traceability and the validation of business requirements. 
 
+The \ac{BOA} pattern augments the clarity and pertinence of the tests by offering a structured methodology to correlate the test cases with business needs. The \ac{BOA} guarantees that testing efforts are consistently directed towards delivering value and validating critical functionality to stakeholders. When used in conjunction with a framework such as \ac{BDD} from \refsec{sub:BDD}, it facilitates the development of robust and user-oriented test suites.
 
-% Your content here.
+\subsubsection{Creating a BOA Test}
+
+Creating a \ac{BOA} test involves mapping test scenarios directly to business goals and the necessary actions to achieve them. The process typically includes the following steps:
+
+\begin{enumerate}
+    \item \textbf{Identify the Business Objective:} Define the high-level business goal that the test should verify. This could be a feature or functionality that the business requires.
+    \item \textbf{Define the Action:} Specify the sequence of steps or operations that must be performed to achieve the business objective. These actions typically mirror user interactions or system processes.
+    \item \textbf{Determine Validation Criteria:} Establish the expected outcome or state of the system after the action is performed. The validation criteria confirm that the business objective has been successfully met.
+    \item \textbf{Write the Test:} Implement the test by coding the defined action and using assertions to verify that the validation criteria are met. The test should execute the action and verify the expected results.
+\end{enumerate}
 
 \section{Tools and Technologies}
+
+The tools and technologies mentioned in this section are integral to the development of the work, enabling efficient manipulation of .NET code. These tools help streamline workflows, improve the maintainability and performance of the application, and support advanced functionality within the project.
+
 \subsection{Cecil-Mono}
+Cecil-Mono \footnote{\href{https://www.mono-project.com/docs/tools+libraries/libraries/Mono.Cecil/}{https://www.mono-project.com}} is a library for reading and writing .NET assemblies. Cecil-Mono allows for the manipulation of assemblies at the bytecode level, enabling tasks such as editing metadata, inspecting assemblies, and generating new code. Cecil is often used for creating tools like decompilers, profilers, and obfuscators, as well as for customizing and automating the build process. Its ability to interact with assembly files without requiring access to the source code makes it an essential tool for complex .NET development.
+
 \subsection{Roslyn}
+
+Roslyn\footnote{\href{https://github.com/dotnet/roslyn}{https://github.com/dotnet/roslyn}} is the .NET compiler platform that provides APIs to analyze, compile, and generate C\# and Visual Basic code. Unlike traditional compilers, Roslyn exposes its parsing, syntax tree generation, and semantic analysis as first-class APIs. Roslyn allows developers to build code analysis tools, refactoring utilities, and code generation solutions.
+
+Roslyn produces \textbf{syntax trees} that delineate the structural composition of the code and performs \textbf{semantic analysis} to augment these trees with type-related information. Such features are crucial for operations such as refactoring and sophisticated code manipulation. Moreover, Roslyn facilitates \textbf{dynamic compilation}, enabling immediate evaluation and execution of code within applications.
+
+
+
+
