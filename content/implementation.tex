@@ -1,6 +1,8 @@
 %!TEX root = ../main.tex
 
-\chapter{Framework Implementation\label{chap:framework_implementation}}
+\chapter{ Implementation\label{chap:framework_implementation}}
+This chapter outlines the practical implementation steps taken to realize the proposed solution.
+
 
 \todo{}
 
@@ -10,7 +12,50 @@
 
 \section{Implementation of Attributes}
 
-\todo{}
+\todo{ Only my marks}
+data preparation
+Attribute whcih class use are in two types.
+ - method and class
+ - in body are same
+ -for class has arguement type and LIfeTime for service colection - defualt Transient
+ -for method type and string which is name of method, and Lifetime for serivice - defu Transient
+
+in class for prepared data are attributes
+    DownData and UpData for method
+    define action for data prepared class
+    
+
+
+test principle attribute
+-main class attribute ITestAction Interface
+    -define using of framework
+    -analyze all attribute using reflection
+     - find all attributes for data preparation in test, and setup counters
+     -  find all prepared data and make reference  dictionary test method/ class with data preparation
+    class if not found
+    -and create base injection with preparad data classes  
+    -create own service provider with data preparation if user define interface for test case
+    - add this provider to case Provider store
+   
+
+-exists 4 attributes for calling prepared data
+    -before test
+        -set up provider for test case
+        -find prepared data defined in attribute or register for tested method and create instance of data prepared class from case provider
+        - add this instance of prepared data class to test
+        - count up counter
+        -repeat all for counter is equal 
+        - on the last attribute invoke data for  all prepared data class instance
+
+    - run test
+    
+    -after test 
+        -count down
+        -repaet after equal
+        -call for each test registerd data preparation class tear down method
+
+-specification for attributes:
+ ...
 
 \section{Supporting BDD}
 
