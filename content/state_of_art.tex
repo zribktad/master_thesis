@@ -2,13 +2,210 @@
 
 \chapter{State of the Art\label{chap:state_of_the_art}}
 
-\todo{} \cite{Emmi2007Jul} \cite{Arcuri2020Jul}\cite{Emmi2007Jul}
+%\todo{} \cite{Emmi2007Jul} \cite{Arcuri2020Jul}\cite{Emmi2007Jul}
 
-\section{Current Software Testing Practices}
-\todo{}
+%\section{Current Software Testing Practices}
+%\todo{}
+\section{Analysis of Existing Solutions}\label{sec:an_exist_sol}
 
-\section{Existing Technologies}
-Existing Technologies section provides an introduction to several frameworks and tools that can be beneficial for the preparation of test data within the C\# programming environment.
+The section presents a systematic document analysis of current approaches to test data preparation in the context of test data preparation, with specific emphasis on the.NET ecosystem. The work elaborated is a methodological paradigm, some implementation patterns, and the underlying limitation. This establishes the foundation on which this work is based and the reason for its development.
+
+\subsection{Current Approaches to Test Data Preparation}
+
+Software testing methodologies have evolved significantly over the past two decades, resulting in diverse approaches to the preparation of test data. This subsection examines the predominant paradigms currently employed in the industry, with a particular focus on their applicability within the NUnit testing ecosystem. Each of the test approaches has its own strengths and weaknesses and influences the way developers structure their test suites.
+
+\subsubsection{Explicit Data Creation}
+The most basic approach involves the explicit construction of test data within each test method. This direct instance pattern represents the simplest implementation strategy, but introduces significant complications as system requirements evolve.
+
+\begin{lstlisting}[language=C, caption=Explicit data creation example, label={lst:explicit}]
+[Test]
+public void CustomerDiscount_PremiumCustomer_Returns20Percent()
+{
+    // Manual data creation
+    var customer = new Customer 
+    { 
+        Name = "John Smith", 
+        Type = CustomerType.Premium,
+        PurchaseHistory = new List<Purchase>
+        {
+            new Purchase { Id = 101, Amount = 150.00m, Date = DateTime.Now.AddDays(-5) },
+            new Purchase { Id = 102, Amount = 299.99m, Date = DateTime.Now.AddDays(-2) }
+        }
+    };
+    
+    var discountService = new DiscountService();
+    var discount = discountService.CalculateDiscount(customer);
+    
+    Assert.That(discount, Is.EqualTo(0.20m));
+}
+\end{lstlisting}
+
+ The \reflst{lst:explicit} approach is often used in smaller test suites or in teams that do not have experience with unit testing. The test data are explicitly defined within the scope of each respective test method, allowing the test code to be transparent. However, the approach is not without limitations, as mentioned in the publication "xUnit Test Patterns" \cite{Meszaros2007Jan}, this way of defining tests is prone to significant code duplication throughout the test suite and introduces significant maintenance issues. The problem occurs when domain models evolve, especially in the presence of multiple analogous tests that share the same explicitly defined data. Explicit code often obscures the functional intent of a test, especially when complex objects are required. Consequently, this approach results in suboptimal maintainability and slower test development, as well as reduced comprehensibility of tests with explicitly defined data.
+
+\subsubsection{Hard-coded Test Data}
+A variant of explicit data generation can also be the centralization of hard-coded test data in static properties or fields, as shown in \reflst{lst:hard}.
+\begin{lstlisting}[language=C, caption=Hard-coded Test Data, label={lst:hard}]
+public static class TestData
+{
+    public static Customer PremiumCustomer = new Customer
+    {
+        Name = "John Smith",
+        Type = CustomerType.Premium,
+        PurchaseHistory = new List<Purchase>
+        {
+            new Purchase { Id = 101, Amount = 150.00m, Date = DateTime.Now.AddDays(-5) },
+            new Purchase { Id = 102, Amount = 299.99m, Date = DateTime.Now.AddDays(-2) }
+        }
+    };
+    
+    public static Customer StandardCustomer = new Customer
+    {
+        // Similar definition for a standard customer
+    };
+}
+
+[Test]
+public void CustomerDiscount_PremiumCustomer_Returns20Percent()
+{
+    var discountService = new DiscountService();
+    var discount = discountService.CalculateDiscount(TestData.PremiumCustomer);
+    
+    Assert.That(discount, Is.EqualTo(0.20m));
+}
+\end{lstlisting}
+The \reflst{lst:hard} hard-coded centralization strategy reduces code duplication and provides a single point of adjustment when domain models change. However, the approach introduces potential interdependencies in testing when shared objects are mutable. Modifications to shared test data in one test may inadvertently affect the behavior of subsequent tests, violating the principle of test isolation.
+
+In addition, static test data presents notable limitations on parameterization and contextual adaptation. As the complexity of systems increases, the proliferation of similar but slightly different test data scenarios leads to an explosion of static data instances, which eventually recreates the maintenance problems of the manual approach.
+\subsubsection{Test Data Builders}
+The Builder pattern, as described in "Design Patterns: Elements of Reusable Object-Oriented Software" \cite{Gamma1994} has been widely adapted for the preparation of test data. This approach represents a significant advancement in encapsulating the complexity of object creation while maintaining flexibility.
+
+\begin{lstlisting}[language=C, caption=Test Data Builders]
+public class CustomerBuilder
+{
+    private Customer _customer = new Customer
+    {
+        Name = "Default Name",
+        Type = CustomerType.Standard,
+        JoinDate = DateTime.Now.AddDays(-30),
+        PurchaseHistory = new List<Purchase>()
+    };
+    
+    public CustomerBuilder WithType(CustomerType type)
+    {
+        _customer.Type = type;
+        return this;
+    }
+    
+    public CustomerBuilder WithPurchase(Purchase purchase)
+    {
+        _customer.PurchaseHistory.Add(purchase);
+        return this;
+    }
+    
+    public Customer Build()
+    {
+        return _customer.Clone();    // Return a deep copy to avoid shared references
+    }
+}
+
+[Test]
+public void CustomerDiscount_PremiumCustomer_Returns20Percent()
+{
+    var customer = new CustomerBuilder()
+        .WithType(CustomerType.Premium)
+        .WithPurchase(new Purchase { Id = 101, Amount = 150.00m })
+        .Build();
+        
+    var discountService = new DiscountService();
+    var discount = discountService.CalculateDiscount(customer);
+    
+    Assert.That(discount, Is.EqualTo(0.20m));
+}
+\end{lstlisting}
+
+The Builder pattern implementation shown in Listing 3.3 provides a fluent interface for constructing test objects with reasonable defaults that can be selectively overridden. This approach aligns with the "Test Data Builder" \cite{freeman2009growing} pattern described in "Growing Object-Oriented Software, Guided by Tests."\cite{freeman2009growing} The authors emphasize that "We find that test data builders help keep tests expressive and resilient to change." (259).
+
+Although the builder pattern offers significant improvements in readability and maintainability, it nonetheless requires substantial upfront investment to implement builders for all relevant domain entities.
+
+\subsubsection{Data-Driven Testing: External Data Sources}
+
+NUnit's built-in support for parameterized testing allows test data to be sourced from external files or methods as follows \reflst{lst:external}.
+
+\begin{lstlisting}[language=C, caption=External Data Sources,label={lst:external}]
+public static IEnumerable<TestCaseData> CustomerDiscountTestCases
+{
+    get
+    {
+        yield return new TestCaseData(
+            new Customer { Type = CustomerType.Standard }, 0.05m).SetName("StandardCustomer_Returns5Percent");
+        yield return new TestCaseData(
+            new Customer { Type = CustomerType.Premium }, 0.20m).SetName("PremiumCustomer_Returns20Percent");
+    }
+}
+
+[TestCaseSource(nameof(CustomerDiscountTestCases))]
+public void CustomerDiscount_ReturnsExpectedPercentage(Customer customer, decimal expectedDiscount)
+{
+    var discountService = new DiscountService();
+    var discount = discountService.CalculateDiscount(customer);
+    
+    Assert.That(discount, Is.EqualTo(expectedDiscount));
+}
+\end{lstlisting}
+As illustrated in \reflst{lst:external}, this approach facilitates comprehensive test coverage through multiple data scenarios while maintaining a single test implementation. This pattern can be extended to load test data from external files (JSON, CSV, XML) or databases, further enhancing separation of concerns. By decoupling test logic from test data, this approach facilitates the modification and expansion of test scenarios without requiring changes to the underlying test code. Additionally, it improves code clarity, since the primary test logic remains unencumbered by explicit data values. However, this methodology also introduces certain challenges. Reliance on external data sources necessitates additional configuration and data handling mechanisms, potentially increasing the complexity of testing setup and execution.
+
+\subsubsection{Object Generation Libraries}
+
+Automated object generation libraries such as \href{https://autofixture.github.io/}{AutoFixture}, \href{https://github.com/nbuilder/nbuilder}{NBuilder}, and \href{https://github.com/bchavez/Bogus}{Bogus} have gained prominence in the .NET testing ecosystem. These libraries provide algorithmic approaches for generating complex object instances with minimal configuration.
+
+\begin{lstlisting}[language=C, caption=Object Generation Libraries,label={lst:gen}]
+[Test]
+public void ProcessOrder_ValidOrder_ReturnsTrue()
+{
+    var fixture = new Fixture();
+    
+    // Customize the fixture for specific test needs
+    fixture.Customize<Order>(composer => composer
+        .With(o => o.Status, OrderStatus.Pending)
+        .With(o => o.CreationDate, DateTime.Now.AddDays(-1)));
+    var order = fixture.Create<Order>();
+    var processor = new OrderProcessor();
+    
+    var result = processor.ProcessOrder(order);
+    Assert.That(result, Is.True);
+}
+\end{lstlisting}
+\reflst{lst:gen} demonstrates AutoFixture's approach to data generation. The object-generated approach reduces the initial cost in tests while efficiently generating complex object structures without extensive setup. However, as undefined values are generated, they can undermine the accuracy of the data and can obscure connections between the test data and the verified behavior. Domain-specific customization requirements can sometimes reintroduce maintenance challenges.
+\section{Analysis of Existing Solutions}
+The approaches examined in \refsec{sec:an_exist_sol} each present distinct limitations that impact the effectiveness, efficiency, and maintainability of the tests. This section provides a detailed analysis of these challenges, setting the context of the problem addressed in the work.
+\subsection{Maintenance Overhead}
+The maintenance burden associated with test data preparation represents one of the most significant challenges in contemporary testing practices. As domain models evolve throughout the software lifecycle, corresponding updates to the test data preparation code can consume disproportionate development resources.
+\subsection{Data Consistency Issues}
+Maintaining consistent or static test data within a test suite presents a significant challenge, especially for larger systems with complex domain models.
+\subsection{Code Duplication}
+The proliferation of redundant test data preparation code within a test suite contributes significantly to technical debt, manifesting itself in several distinct forms.
+	      \begin{itemize}
+		      \item Recurrent replication of analogous object creation code across multiple test methods.
+		      \item Reiterative implementation of common preparatory procedures in various test classes.
+            \item The unnecessary replication of similar verification code among related tests.
+            \item The redundant recreation of helper methods across disparate test projects.
+	      \end{itemize}
+This redundancy not only exacerbates maintenance challenges, but also obfuscates the unique attributes of individual test cases. Such pervasive duplication hampers the identification of distinct test characteristics, thereby diminishing both the readability and the maintainability of the test suite.
+
+\subsection{Challenges in Database Testing}
+
+Testing database-dependent applications introduces additional complexities beyond those faced in in-memory or isolated unit testing scenarios. The primary issues include the following.
+ \begin{itemize}
+  \item Data Integrity and Referential Constraints: Ensuring test data adheres to database integrity constraints (e.g., foreign keys, unique constraints) requires significant effort, especially when modifying datasets for different test cases.
+
+   \item State Management: Managing the state of test data across multiple test runs presents challenges, as tests may either rely on predefined static datasets or dynamically generated data, each with trade-offs in terms of repeatability and maintainability.
+
+ \item Performance Overhead: Populating and cleaning up test data in a database can introduce significant performance overhead, particularly for integration tests requiring large or complex datasets.
+
+ \item Test Isolation Issues: Concurrent test execution risks data contamination, where modifications from one test affect the outcome of another, leading to non-deterministic failures and unreliable test results.
+    \end{itemize}
+\section{Technologies}
+Technologies section provides an introduction to several frameworks and tools that can be beneficial for the preparation of test data within the C\# programming environment.
 
 \subsection{IntelliTest Framework}
 IntelliTest\footnote{\href{https://learn.microsoft.com/en-us/visualstudio/test/intellitest-manual/?view=vs-2022}{https://learn.microsoft.com/en-us/visualstudio/test/intellitest-manual/?view=vs-2022}} is a tool for automated test generation integrated into Microsoft Visual Studio. IntelliTest leverages dynamic symbolic execution to analyze the code under test and produce parameterized unit tests. IntelliTest methodology systematically explores various execution paths in the code, covering edge cases and unexpected scenarios.
@@ -31,6 +228,3 @@ Mockaroo\footnote{\href{https://www.mockaroo.com}{https://www.mockaroo.com}} is 
 
 Mockaroo is ideal for scenarios in which large and complex datasets are required for testing and can be particularly useful when testing databases or APIs that require realistic data for validation.
 
-
-\section{Research Gaps}
-\todo{}

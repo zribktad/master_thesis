@@ -12,7 +12,7 @@ The language distinguishes itself through features such as type safety, garbage 
 
 Interfaces\footnote{\href{https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/interfaces}{Interface definition by Microsoft}} are foundational constructs in C\# that specify a contract that defines a set of members, including methods, properties, events or indexers, without implementation details. The abstraction of the interface supports a decoupled design, allowing developers to clearly define the boundaries between components. Interfaces are central to object-oriented programming in C\#, enabling polymorphism and adhering to the substitution principle, where multiple implementations of an interface can be used interchangeably.
 
-The use of interfaces in software design improves modularity and extensibility. For example, interfaces are often employed in API definitions, enabling cohesive interaction between disparate systems or components. A notable addition introduced in C\# 8.0 is the ability of the interfaces to include default implementations, allowing developers to provide fundamental functionality without breaking backward compatibility. This feature highlights the language's ongoing evolution to meet modern programming needs.
+The use of interfaces in software design improves modularity and extensibility. For example, interfaces are often employed in API definitions, enabling cohesive interaction between disparate systems or components. A notable addition introduced in C\# .Net 8.0 is the ability of the interfaces to include default implementations, allowing developers to provide fundamental functionality without breaking backward compatibility. This feature highlights the language's ongoing evolution to meet modern programming needs.
 
 \subsection{Attributes and Metadata in C\#}
 
@@ -42,20 +42,30 @@ Blazor allows developers to build web applications using C\# instead of JavaScri
 \subsubsection{Cross-Platform Development with Xamarin.Forms and MAUI}  
 Xamarin.Forms enables the creation of native user interfaces for iOS, Android, and Windows with a shared C\# codebase, supporting features such as custom renderers and the MVVM \footnote{Model-View-ViewModel, a software architectural pattern used for designing the structure of user interfaces, particularly in desktop and mobile applications.} pattern for easier app maintenance. 
 Xamarin.Forms has evolved into \ac{MAUI}, representing an integral part of the next-generation cross-platform development framework provided by the .NET ecosystem. 
-\ac{MAUI} extends the foundational work established by Xamarin.Forms by offering advanced functionalities, including support for an expanded range of platforms such as macOS and Linux. \ac{MAUI} serves as a comprehensive framework for developing cross-platform applications, minimizing the need for platform-specific code and improving the development experience. Through \ac{MAUI}, developers have the ability to compose a singular codebase for applications intended for mobile and desktop devices, utilizing the capabilities of C\# and.NET across all platforms.
+\ac{MAUI} extends the foundational work established by Xamarin.Forms by offering advanced functionalities, including support for an expanded range of platforms such as macOS and Linux. \ac{MAUI} serves as a comprehensive framework for developing cross-platform applications, minimizing the need for platform-specific code and improving the development experience. Through \ac{MAUI}, developers have the ability to compose a singular codebase for applications intended for mobile and desktop devices, utilizing the capabilities of C\# and .NET across all platforms.
 
 \subsubsection{Desktop UI with WPF and WinUI}  
 \ac{WPF} \footnote{Graphical subsystem for rendering user interfaces in Windows applications.} and \ac{WinUI} \footnote{Modern user interface framework for creating native Windows applications with advanced UI elements and better performance}are used to develop desktop applications in C\#. \ac{WPF} utilizes XAML \footnote{Extensible Application Markup Language} for the design of the user interface, while \ac{WinUI}  offers modern user interface elements and improved performance for Windows applications.
 
 \subsubsection{Gaming with Unity}
 
-Unity is a robust game development engine that employs C\# for scripting, facilitating the creation of 2D and 3D games. Unitu is equipped with capabilities for cross-platform deployment, allowing games to operate on iOS, Android, Windows, macOS, and gaming consoles. The engine furnishes tools for real-time rendering, physics simulations, and complex animations, rendering it exemplary for developing immersive and interactive game experiences. The component-based architecture of Unity enables developers to attach C\# scripts to game objects in order to regulate their behavior and interactions. Due to its comprehensive documentation and active community, Unity is favored as a platform for constructing games across diverse platforms.
+Unity\footnote{\href{https://unity.com/}{https://unity.com/}} is a robust game development engine that employs C\# for scripting, facilitating the creation of 2D and 3D games. Unitu is equipped with capabilities for cross-platform deployment, allowing games to operate on iOS, Android, Windows, macOS, and gaming consoles. The engine furnishes tools for real-time rendering, physics simulations, and complex animations, rendering it exemplary for developing immersive and interactive game experiences. The component-based architecture of Unity enables developers to attach C\# scripts to game objects to regulate their behavior and interactions. Due to its comprehensive documentation and active community, Unity is favored as a platform for constructing games across diverse platforms.
+
+\section{Factory Pattern in Software Design}\label{sec:FactoryPattern}
+The Factory Pattern is a fundamental creation design pattern that encapsulates the instantiation logic of objects defined in \cite{Gamma1994}. Delegating the responsibility of their creation to a specialized factory class. This abstraction allows client code to remain decoupled from specific class implementations, thereby enhancing modularity and facilitating future modifications.
+
+\subsection{Advantages of the Factory Pattern}
+\begin{itemize} 
+\item  Encapsulation of Object Creation: The pattern abstracts the instantiation process, mitigating direct dependencies between components and promoting loose coupling.
+\item  Enhanced Code Maintainability: By centralizing object creation logic within a factory, modifications to class structures become more manageable and localized \cite{Martin2008Aug}.
+\item Support for Dependency Injection: The pattern integrates seamlessly with dependency injection frameworks, fostering a more scalable and maintainable software architecture.
+\end{itemize}
 
 \section{Software Testing Concepts}
 
-Software testing is a critical activity in the software development life cycle, aimed at ensuring the correctness, quality, and performance of a software system. Software testing involves the execution of software to detect defects, assess its functionality, and validate that a software meets the specified requirements. Testing can be performed at various stages of the development process to identify issues early and prevent the introduction of defects into the system.
+Software testing is a critical activity in the software development life cycle, with the aim of ensuring the correctness, quality, and performance of a software system. Software testing involves the execution of software to detect defects, assess its functionality, and validate that a software meets the specified requirements. Testing can be performed at various stages of the development process to identify issues early and prevent the introduction of defects into the system.
 
-Software testing is typically categorized into several distinct types, each focusing on different aspects of software behavior.
+According to \cite{hooda2015software}, software testing is typically categorized into several distinct types, each focusing on different aspects of software behavior.
 
 \begin{itemize}
     \item \textbf{Unit Testing:} This type of testing focuses on evaluating individual components or functions of the system in isolation. Unit tests ensure that each unit of code performs as expected, which helps to prevent errors at the earliest stages of development.
@@ -64,6 +74,8 @@ Software testing is typically categorized into several distinct types, each focu
     \item \textbf{Acceptance Testing:} Acceptance Testing is carried out to verify whether the software meets the business requirements and expectations of the end users. Acceptance testing is often performed by users or representatives to determine if the system is ready for deployment.
     \item \textbf{Regression Testing:} Regression testing is performed after code changes, bug fixes, or enhancements to features. The primary purpose of regression testing is to ensure that new changes do not introduce unwanted side effects or break existing functionality in the system.
     \item \textbf{Performance Testing:} Performance testing evaluates the responsiveness, stability, and scalability of the system under varying loads. Performance testing includes load testing, stress testing, and scalability testing to identify potential performance bottlenecks and ensure the system performs efficiently under real-world conditions.
+    \item \textbf{Black-Box Testing:} Black-box testing evaluates software functionality without considering its internal structure or implementation details. The testers provide input and assess the output to verify that the system behaves as expected.
+    \item \textbf{White-Box Testing:} White-box testing involves examining the internal workings of an application, including code structure, logic, and flow. It requires knowledge of the internal design and is often used for unit testing and code coverage analysis.
 \end{itemize}
 
 The process of software testing is not limited to the detection of defects. When defects are identified during any phase of testing, a structured process is followed to diagnose, isolate, and correct the issue. The defect is typically logged in a defect tracking system, where it is categorized and prioritized based on its severity. The development team then analyzes the root cause of the issue, applies a solution, and re-initiates testing to confirm that the problem has been resolved and no new issues have emerged.
@@ -79,10 +91,10 @@ Key components of the .NET testing ecosystem include:
 \begin{itemize}
     \item \textbf{Unit Testing Frameworks:} .NET supports several unit testing frameworks, such as NUnit, MSTest, and xUnit. These frameworks allow developers to automate the testing of individual components and ensure that they function correctly in isolation from the rest of the system.
     \item \textbf{Mocking Libraries:} Libraries such as Moq and NSubstitute enable the creation of mock objects to simulate dependencies, facilitating isolated and focused tests. These tools are especially useful in unit testing when direct dependencies need to be replaced with controllable substitutes.
-    \item \textbf{Continuous Integration and Testing (CI/CT):} The .NET ecosystem integrates seamlessly with CI/CD pipelines, using tools like Azure DevOps, Jenkins, and GitHub Actions. These platforms automate the testing process, ensuring that each code change is verified through a series of automated tests before being integrated into the main codebase.
+    \item \textbf{\acf{CI/CT}:} The .NET ecosystem integrates seamlessly with \ac{CI/CD} pipelines, using tools like Azure DevOps, Jenkins, and GitHub Actions. These platforms automate the testing process, ensuring that each code change is verified through a series of automated tests before being integrated into the main codebase.
 \end{itemize}
 
-Testing within the .NET ecosystem is aligned with modern software development practices such as Test-Driven Development (TDD) and Behavior-Driven Development (BDD). TDD emphasizes writing tests before code, ensuring that every piece of code developed is covered by automated tests. BDD, on the other hand, focuses on collaboration between developers, testers, and business stakeholders, ensuring that the system meets user requirements from the outset.
+Testing within the .NET ecosystem is aligned with modern software development practices such as \acf{TDD} or \acf{BDD}. \ac{TDD} emphasizes writing tests before code, ensuring that every developed code piece is covered by automated tests. \ac{BDD} focuses on collaboration between developers, testers, and business stakeholders, ensuring that the system meets user requirements from the outset.
 
 \section{NUnit Testing Framework}
 
@@ -97,8 +109,8 @@ The key features of NUnit include:
     \item \textbf{Parameterized Tests:} NUnit allows the creation of parameterized tests, where the same test method is executed with different sets of input data. This feature is particularly useful for validating functions with multiple input variations and edge cases.
     \item \textbf{Parallel Test Execution:} NUnit supports parallel test execution, which helps to reduce the overall test run time by running independent tests concurrently. This feature is beneficial for large test suites, where execution speed is a key consideration.
 \end{itemize}
-
-NUnit integrates well with mocking frameworks, such as Moq, to facilitate the isolation of dependencies and enable comprehensive unit tests. The framework also supports integration with continuous integration tools, ensuring that automated tests are executed as part of the build process in a CI/CD pipeline.
+The process commences with the creation of a TestFixture, a class annotated with the [TestFixture] attribute that functions as a container for related test methods. Each test is implemented as a method marked with the [Test] attribute, explicitly designating it as a test case. To handle scenarios that require the evaluation of identical logic across multiple sets of input parameters, NUnit offers the [TestCase] attribute, which facilitates the association of various inputs with their expected outcomes.
+NUnit integrates well with mocking frameworks, such as Moq, to facilitate the isolation of dependencies and enable comprehensive unit tests. The framework also supports integration with continuous integration tools, ensuring that automated tests are executed as part of the build process in a \ac{CI/CD} pipeline.
 
 The flexibility, user-friendliness, and engaged community support of NUnit substantiate its reliability and efficacy as a testing tool within the .NET ecosystem, thereby fostering a significant focus on quality assurance and test automation.
 
@@ -170,7 +182,7 @@ Example scenario for subtraction:
 \item \textbf{Implementing Step Definitions:} After drafting the feature and scenarios in Gherkin, the subsequent phase involves developing the step definitions. These step definitions establish the connection between the Gherkin steps and the specific code responsible for interacting with the system being tested. With regard to the calculator, this process may include imitating user input actions or calling upon methods that execute the related arithmetic operations.
 \end{enumerate}
 
-Widely used \ac{BDD} frameworks like \href{https://cucumber.io}{Cucumber}, \href{https://specflow.org/}{SpecFlow}, and \href{https://behave.readthedocs.io/en/latest/#}{Behave}, enable teams to automate these specifications, keeping them testable throughout the project lifecycle. Combining BDD with automated testing frameworks further aids in continuous integration and delivery, thus enhancing the overall quality of the software.
+Widely used \ac{BDD} frameworks like \href{https://cucumber.io}{Cucumber}, \href{https://specflow.org/}{SpecFlow}, and \href{https://behave.readthedocs.io/en/latest/#}{Behave}, enable teams to automate these specifications, keeping them testable throughout the project lifecycle. Combining \ac{BDD} with automated testing frameworks further aids in continuous integration and delivery, thus enhancing the overall quality of the software.
 
 \subsection{Business-Objective-Action}
 
@@ -188,6 +200,12 @@ Creating a \ac{BOA} test involves mapping test scenarios directly to business go
     \item \textbf{Determine Validation Criteria:} Establish the expected outcome or state of the system after the action is performed. The validation criteria confirm that the business objective has been successfully met.
     \item \textbf{Write the Test:} Implement the test by coding the defined action and using assertions to verify that the validation criteria are met. The test should execute the action and verify the expected results.
 \end{enumerate}
+
+\subsection{\acf{EF}}
+
+\acf{EF} is Microsoft's recommended \acf{ORM} for the .NET platform, designed to streamline data access by bridging the conceptual gap between relational database structures and object-oriented programming paradigms. By allowing developers to interact with databases through .NET objects, \ac{EF} abstracts much of the complexity associated with traditional data access techniques. This abstraction eliminates the need for extensive boilerplate code typically required in conventional ADO.NET implementations.
+
+A key feature of \ac{EF} is its ability to automatically generate the necessary SQL commands for querying and persist data, thus reducing the manual effort involved in database interactions. This automation improves code maintainability, improves development efficiency, and promotes cleaner and more modular architecture. Through its high-level abstraction and robust feature set, \ac{EF} facilitates the development of scalable and maintainable data-driven applications within the .NET ecosystem.
 
 \section{Tools and Technologies}
 

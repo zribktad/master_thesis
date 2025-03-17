@@ -1,71 +1,314 @@
 %!TEX root = ../main.tex
 
 \chapter{ Implementation\label{chap:framework_implementation}}
-This chapter outlines the practical implementation steps taken to realize the proposed solution.
+The chapter outlines the practical implementation steps taken to realize the proposed solution.
+
+\section{Integration with the NUnit Framework}\label{sec:TestFixtureIntegration}
+
+The fundamental building block for creating extensions within the NUnit framework is the \texttt{ITestAction} interface. \texttt{ITestAction} interface enables the execution of \texttt{BeforeTest} and \texttt{AfterTest} methods before and after the execution of a test component. Both methods accept an \texttt{ITest} interface object as an argument, providing essential information such as the test identifier, the list of tests currently running, the component of the test fixture and an instance of the test class.
+
+By utilizing \texttt{ITestAction}, it is possible to precisely specify the type of test to be executed, whether it is an individual test case (\texttt{Test}) or an entire test fixture class (\texttt{Suite}). By combining this interface with an attribute-based approach, the extension framework can be seamlessly integrated into the test execution cycle. The extension is applied simply by adding the relevant attribute to the test class or individual test methods.
+
+\section{\texttt{DataPreparationFixture}}
+
+The \texttt{DataPreparationFixture} is the first attribute defined in conjunction with \texttt{ITestAction}. texttt{DataPreparationFixture} attribute  implements \texttt{ITestAction} and inherits from the \texttt{TestFixture} class, leveraging NUnit’s established attribute-based approach. Combination of \texttt{ITestAction} and \texttt{TestFixture} ensures consistent test preparation while incorporating custom logic specific to the extension framework.
+
+\texttt{DataPreparationFixture} implements both methods from \texttt{ITestAction} - \texttt{BeforeTest} and \texttt{AfterTest}. When any test within the associated \texttt{TestFixture} is executed, these methods are automatically invoked, ensuring proper initialization before and deinitialization after all test cases. 
+
+\subsection{\texttt{DataPreparationFixture} Interfaces}
+
+A test fixture utilizing the \texttt{DataPreparationFixture} attribute defines several interfaces that extend the test execution lifecycle. These interfaces provide mechanisms for logging, \ac{DI} management, and execution of pre- and post-test operations with \ac{DI}.
+
+\subsubsection{IDataPreparationLogger}
+\begin{itemize}
+    \item \textbf{Description:} The \texttt{IDataPreparationLogger} interface defines a method to manage logging within the extension framework.
+    \item \textbf{Functionality:} The method returns an instance of \texttt{ILoggerBuilder} from the \texttt{Microsoft.Extensions.Logging} NuGet package. It is invoked before \texttt{TestFixture} initialization and before each test case, ensuring that the logging is configured prior to test execution.
+    \item \textbf{Consequence:} If logging is not explicitly configured by implementing this interface, a default fallback to \texttt{NullLoggerBuilder} is used.
+\end{itemize}
 
 
-\todo{}
+\subsubsection{IDataPreparationTestServices}
+\begin{itemize}
+    \item \textbf{Description:} The \texttt{IDataPreparationTestServices} interface enables testers to manipulate the dependency injection container for each test case.
+    \item \textbf{Functionality:} It provides a method that accepts an \texttt{IServiceCollection} object from the \texttt{Microsoft.Extensions.DependencyInjection} package. This allows testers to add, configure, or remove services available during test execution.
+    \item \textbf{Consequence:} If this interface is not implemented, tests within the given \texttt{TestFixture} execute without additional injected services, which may not be an issue if such functionality is not required.
+\end{itemize}
 
-\section{Technology Selection}
+\subsubsection{IBeforeTest}
 
-\todo{}
+\begin{itemize}
+    \item \textbf{Description:} The \texttt{IBeforeTest} interface defines a method executed before each test runs.
+    \item \textbf{Functionality:} The method receives the \texttt{IServiceProvider} object as a parameter, containing all the necessary services that can be configured or utilized before test execution.
+    \item \textbf{Consequence:} By implementing this interface, testers can perform preparatory operations, such as initialization of the environment or configuration of specific services, immediately before the test begins.
+\end{itemize}
 
-\section{Implementation of Attributes}
 
-\todo{ Only my marks}
-data preparation
-Attribute whcih class use are in two types.
- - method and class
- - in body are same
- -for class has arguement type and LIfeTime for service colection - defualt Transient
- -for method type and string which is name of method, and Lifetime for serivice - defu Transient
+\subsubsection{IAfterTest}
 
-in class for prepared data are attributes
-    DownData and UpData for method
-    define action for data prepared class
+\begin{itemize}
+    \item \textbf{Description:} The \texttt{IAfterTest} interface defines a method that is executed after each test is complete.
+    \item \textbf{Functionality:} The method receives the \texttt{IServiceProvider} instance associated with the completed test. This enables operations related to cleanup, resource disposal, or post-processing tasks.
+    \item \textbf{Consequence:} Implementing this interface ensures proper cleanup of services, preventing issues caused by unclear resources or incorrectly configured services.
+\end{itemize}
+
+
+\subsection{Implementation of \texttt{DataPreparationFixture}}
+This section defines the implementation of \texttt{DataPreparationFixture} according to the introduced \refchap{chap:framework_design} and continues from  the \refsec{sec:TestFixtureIntegration}. \texttt{DataPreparationFixture} contains two main methods BeforeTest and AfterTest which are from the \texttt{ITestAction} interface. The \texttt{BeforeTest} method consists of several key steps that represent the fundamental logic of the extension framework.
+
+\subsubsection{Retrieving \texttt{ILoggerBuilder} (ILogger Building)} \label{subsubsec:retLogger}
+
+\begin{itemize}
+    \item \textbf{Task:}  
+    The first step executed by \texttt{BeforeTest} is retrieving the instance of the \texttt{test fixture} class. The instance is checked for implementation of the \texttt{IDataPreparationLogger} interface, which is responsible for creating an \texttt{ILoggerBuilder} object.
     
-
-
-test principle attribute
--main class attribute ITestAction Interface
-    -define using of framework
-    -analyze all attribute using reflection
-     - find all attributes for data preparation in test, and setup counters
-     -  find all prepared data and make reference  dictionary test method/ class with data preparation
-    class if not found
-    -and create base injection with preparad data classes  
-    -create own service provider with data preparation if user define interface for test case
-    - add this provider to case Provider store
-   
-
--exists 4 attributes for calling prepared data
-    -before test
-        -set up provider for test case
-        -find prepared data defined in attribute or register for tested method and create instance of data prepared class from case provider
-        - add this instance of prepared data class to test
-        - count up counter
-        -repeat all for counter is equal 
-        - on the last attribute invoke data for  all prepared data class instance
-
-    - run test
+    \item \textbf{Implementation Check:}  
+    If the \texttt{TestFixture} implements the given interface, the method invokes the corresponding implemented method, returning an \texttt{ILoggerBuilder} instance. ILoggerBuilder object is used to create and configure the logger during the test execution process.
     
-    -after test 
-        -count down
-        -repaet after equal
-        -call for each test registerd data preparation class tear down method
+    \item \textbf{Fallback Mechanism:}  
+    If the \texttt{TestFixture} does not implement the required logging interface, a predefined implementation of \texttt{NullLoggerBuilder} is automatically used instead. Fallback implementation ensures that logging does not cause errors even if it is not explicitly configured.
+\end{itemize}
 
--specification for attributes:
- ...
+\subsubsection{Data Registration}
 
-\section{Supporting BDD}
+\begin{itemize}
+    \item \textbf{Task:}  
+    After retrieving the logger, the next crucial process is to register the data from the assembly code into the \texttt{ServiceDescriptor}.
+    
+    \item \textbf{Assembly Analyzer:}  
+    The method utilizes an assembly analyzer to examine the classes within the assembly where the current \texttt{TestFixture} is located. Using reflection in C\#, all classes that contain relevant data for the extension framework are identified. These may include factory classes or classes responsible for preparing data before testing. In addition, attribute-based metadata is stored, including information about the methods with which a given data preparation class is associated. Once the analysis is completed, the resulting \texttt{ServiceCollection} is stored for future use. If another \texttt{TestFixture} exists within the same assembly, the previously stored \texttt{ServiceCollection} is utilized instead of performing a redundant analysis.  
+
+    \item \textbf{Registration Outcome:}  
+    The retrieved data is then registered into the \texttt{ServiceDescriptor}, enabling its further utilization during the test cycle and ensuring proper context loading for the extension framework.
+    
+    \item \textbf{Parallel Assembly Analyzer:} 
+    In scenarios where multiple \texttt{TestFixtures} from the same assembly are executed in parallel, a locking mechanism is implemented. The locking mechanism prevents multiple simultaneous analyzes for the same assembly, ensuring that only one analysis is performed at a time.
+\end{itemize}
+
+\subsubsection{Additional Data Configuration}
 
 
-\todo{}
+\begin{itemize}
+    \item \textbf{Task:}  
+    Following data registration, the tester can manage additional services through the \texttt{IDataPreparationTestServices} interface.
+    
+    \item \textbf{Process:}  
+    A copy of the registered \texttt{ServiceCollection} is obtained from the data registration process. The instance of \texttt{TestFixture} is then checked for an implementation of \texttt{IDataPreparationTestServices}. If present, the copied registered data is passed as a parameter when invoking the corresponding method from \texttt{IDataPreparationTestServices}.
+    Then the modified copy of \texttt{ServiceCollection} is used for the tests in the current TestFixture.
+\end{itemize}
+
+ \subsection{Representation of test fixture data}
+ During test execution, the extension framework creates and temporarily stores several key pieces of information about the executed tests. This includes details on the current \texttt{TestFixtures} and individual test cases, allowing comprehensive management and monitoring of the testing process.
+
+\subsubsection{Data Storage Mechanism}
+
+\begin{itemize}
+    \item \textbf{Storage Method:}  
+    Data storage is handled via a static \texttt{Store} class, which contains a dictionary used to maintain relevant information. The entries in this dictionary are created during the execution of the \texttt{BeforeTest} method from the \texttt{ITestAction} interface, as defined in the \texttt{DataPreparationFixture} attribute.  
+    
+    \item \textbf{Stored Data:}  
+    Once logging, data registration, and other critical components are set up, a new entry is added to the dictionary containing: \begin{itemize}
+        \item A copy of the registered service prescriptions for tests: Ensure that the services used during the testing remain consistent and correctly configured.
+        \item An instance of \texttt{LoggerFactory}: Responsible for creating and managing loggers, ensuring the ability to monitor the execution of the test.
+        \item Information about the \texttt{TestFixture}: This includes the NUnit test ID and the class type, allowing for an unambiguous identification of the test class and its configuration.
+        \item A dictionary of tests: Preparation of an empty dictionary for test data associated with the given \texttt{TestFixture}.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Data Management and Cleanup}
+
+\begin{itemize}
+    \item Once all tests within a given \texttt{TestFixture} have completed, it is necessary to ensure that temporarily stored data are cleared.
+    
+    \item The implementation of the \texttt{AfterTest} method of the \texttt{DataPreparationFixture} class deletes the corresponding dictionary entry from \texttt{Store}. This prevents the accumulation of outdated information and ensures optimal memory management during testing.
+\end{itemize}
+
+\section{\texttt{DataPreparationTest}}
+
+The \texttt{DataPreparationTest} attribute is a fundamental component of the extension framework, serving as a replacement for the standard \texttt{Test} attribute in the NUnit framework. The primary function of \texttt{DataPreparationTest} is to facilitate the initialization of the data needed for individual test executions and the removal of created prepared data. By implementing the \texttt{ITestAction} interface and inheriting from the \texttt{Test} class, \texttt{DataPreparationTest} ensures compatibility with the NUnit testing mechanism while extending its capabilities to support enhanced data management.
+
+\subsection{Implementation of \texttt{DataPreparationTest}}
+
+\subsubsection{Implementation of the \texttt{BeforeTest} Method}
+
+The \texttt{DataPreparationTest} attribute integrates with the \texttt{ITestAction} interface, which controls the execution of test cases. The \texttt{BeforeTest} method is responsible for initializing the core components before the test is executed. The \texttt{BeforeTest} method ensures that the necessary data structures, logging mechanisms, and \ac{DI} are configured appropriately.
 
 
-\section{Sample Testing Code}
+The execution of the \texttt{BeforeTest} method follows a structured sequence of operations:
 
-\todo{}
+\begin{enumerate}
+    \item \textbf{Instantiation of \texttt{LoggerBuilder}}  
+        The initialization process begins with the creation of a \texttt{LoggerBuilder}, following the same procedural approach as implemented in \refsec{subsubsec:retLogger}.
 
-\section{Framework Integration}
-\todo{}
+    \item \textbf{Extraction of Attribute Metadata}  
+        The test method under execution is analyzed to identify and retrieve relevant attributes defined within the extension framework.
+
+    \item \textbf{Registration of the Test Case in the \texttt{Store}}  
+        The test case is systematically registered within the central storage component (\texttt{Store}), which maintains comprehensive records of all currently active test executions. During this registration process, the following elements are stored:
+        \begin{itemize}
+            \item Metadata associated with the test case.
+            \item A reference to the \texttt{LoggerFactory}, obtained via the \texttt{LoggerBuilder}.
+            \item Extracted attribute data relevant to the test method.
+            \item A \texttt{ServiceProvider} instance, instantiated based on the service collection associated with the \texttt{TestFixture}.
+            The \texttt{ServiceProvider} is accessible throughout the entire lifecycle of the test execution.
+        \end{itemize}
+     
+    \item \textbf{Invocation of \texttt{BeforeTest} from the \texttt{IBeforeTest} Interface}  
+        If the test class implements the \texttt{IBeforeTest} interface, its \texttt{BeforeTest} method is executed, receiving the configured \texttt{ServiceProvider} as a parameter.
+
+    \item \textbf{Conditional Execution of Initialization}  
+        The initialization sequence is executed only if the \texttt{Store} does not already contain an entry for the given test case. If the test case has been previously registered, the initialization process is bypassed to prevent redundancy.
+\end{enumerate}
+
+\subsubsection{Implementation of the \texttt{AfterTest} Method}
+
+The \texttt{AfterTest} method, defined within the \texttt{ITestAction} interface, facilitates the removal of test case records from the \texttt{Store} and ensures the deallocation of any data structures prepared during test execution.
+
+The data removal process follows a systematic approach to ensure proper resource management:
+
+\begin{enumerate}
+
+    \item \textbf{Removal of Data Generated During Test Execution}  
+        Initially, all prepared data dynamically created during test execution are deallocated to prevent memory retention.
+
+    \item \textbf{Clearing of Preconfigured Data}  
+        Subsequently, pre-initialized data structures established before test execution are removed.
+
+    \item \textbf{Invocation of \texttt{AfterTest} from the \texttt{IAfterTest} Interface}  
+        If the test class implements the \texttt{IAfterTest} interface, its \texttt{AfterTest} method is executed, receiving the same \texttt{ServiceProvider} instance used during test execution.
+
+    \item \textbf{Deregistration of the Test Case from the \texttt{Store}}  
+        After all essential cleanup operations are completed, the test case entry is removed from the \texttt{Store}, ensuring that no residual test data persists within the test fixture.
+\end{enumerate}
+
+To maintain robustness and reliability, the test framework incorporates structured exception handling mechanisms. Any exceptions encountered during the data removal process are systematically logged to ensure traceability. Multiple exceptions are aggregated into an \texttt{AggregateException}, which is raised at the conclusion of the test execution if errors are detected.
+
+\section{Implementation of Data Prepared Before Test}
+
+This section is dedicated to elucidating the implementation of the data preparation mechanism prior to test execution, the architecture of which was delineated in \refsec{}. The ensuing steps will methodically outline the core components of the implementation and their assimilation within the architectural framework.
+
+\subsection{Data Preparation Class}
+
+A tester preparing data must define a class responsible for creating and subsequently removing the data after the test execution. The framework utilizes attributes to bind a data preparation class to either a test method or a test class. This association follows a \textit{one-to-one} relationship—each data preparation entity is assigned to a specific method or class.
+
+The framework distinguishes between two types of attributes:
+
+\begin{itemize}
+    \item \textbf{PreparationMethodForAttribute} – associates the prepared data with a specific tested method.
+    \item \textbf{PreparationClassForAttribute} – associates the prepared data with an entire tested class.
+\end{itemize}
+
+When using \texttt{PreparationMethodForAttribute}, the following parameters must be defined:
+
+\begin{itemize}
+    \item The \textit{Type} of the class in which the method is located,
+    \item The \textit{name} of the method,
+    \item Optionally, the \textit{lifetime} of the class within the \ac{DI} container.
+\end{itemize}
+
+For \texttt{PreparationClassForAttribute}, the following parameters must be specified:
+
+\begin{itemize}
+    \item The \textit{Type} of the class,
+    \item Optionally, the \textit{lifetime} of the data within the \ac{DI} container.
+\end{itemize}
+
+In addition to defining the association with the test component, these attributes serve as \textbf{identifiers for the extension framework}. The framework automatically detects classes marked with these attributes in \refsec{} and integrates them into the test execution.
+
+\subsubsection{Methods}
+
+A class responsible for data preparation may contain two methods:
+
+\begin{itemize}
+    \item A method executed \textbf{before the test},
+    \item A method executed \textbf{after the test}.
+\end{itemize}
+
+The tester has two approaches to defining these methods:
+\begin{itemize}
+\paragraph{}
+\item \textbf{Using Interfaces}
+\newline
+
+The framework provides two interfaces:
+
+\begin{itemize}
+    \item \texttt{IBeforePreparation} – defines a parameterless method executed before and after the test ,
+    \item \texttt{IBeforePreparationTask} – similar functionality, but with a \texttt{Task} return type, enabling asynchronous execution.
+\end{itemize}
+\paragraph{}
+\item \textbf{Using Attributes}
+\newline
+
+If the tester does not wish to implement interfaces, they can mark methods with the following attributes.
+
+\begin{itemize}
+    \item \texttt{UpData} – marks the method to be executed before the test,
+    \item \texttt{DownData} – marks the method to be executed after the test.
+\end{itemize}
+
+If multiple methods within a single class are marked with the same attribute type, the framework selects only one. The attribute approach offers \textbf{maximum flexibility}, which allows the tester to define arbitrary parameters, including support for asynchronous methods. However, for use only \textbf{the constant expressions} are supported as parameters.
+\end{itemize}
+\subsection{Attributes for Using Prepared Data}
+
+Before running the test, the tester specifies which prepared data should be used using dedicated attributes.
+
+These attributes are categorized into two primary groups:
+
+\begin{enumerate}
+    \item \textbf{\texttt{UsePreparedDataAttribute} and \texttt{UsePreparedDataParamsAttribute}}
+    \begin{itemize}
+        \item Determine to call specific classes of prepared data for use in the test.
+        \item The key difference is:
+        \begin{itemize}
+            \item \texttt{UsePreparedDataAttribute} accepts multiple types of data preparation classes,
+            \item \texttt{UsePreparedDataParamsAttribute} allows specifying only one class but with input parameters for methods executed before and after the test.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{\texttt{UsePreparedDataForAttribute} and \texttt{UsePreparedDataParamsForAttribute}}
+    \begin{itemize}
+        \item  Simplify access to prepared data by allowing testers to refer to an existing tested class or method. The predefined data for the class are not explicitly called, the usage must be enabled.
+        \item \texttt{UsePreparedDataForAttribute} accepts a class and methods to which the prepared data should be applied.
+        \item \texttt{UsePreparedDataParamsForAttribute} accepts the class and method for which the prepared data are to be used. It allows you to specify parameters for each of them.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Implementation of Data Preparation}
+
+All attributes defined in ~\refsec{} implement the \texttt{ITestAction} interface from the NUnit framework. The implementation is fundamentally similar to ~\refsec{}, but does not inherit from \texttt{TestAttribute}. In addition, it contains a function to call the prepared data before the test.
+
+The approach was adopted because attributes are executed in the order in which the tester defines them. However, this order may not always be correct, and the initialization of test cases in the extension framework may not necessarily occur before the invocation of the prepared test case.  
+
+To ensure proper sequencing, the initialization of the test case is performed \textbf{upon the first invocation of the \texttt{BeforeTest} method}. Subsequently, the defined prepared data are invoked according to the test configuration. Similarly, the deinitialization of the test case occurs \textbf{upon the first invocation of the \texttt{AfterTest} method}.  
+
+\subsubsection{Process of Data Retrieval and Registration}
+
+\begin{itemize}
+    \item For attributes with \texttt{For}, the framework retrieves the types of classes associated with them.
+    \item For \texttt{UsePreparedDataAttribute} and \texttt{UsePreparedDataParamsAttribute}, the types are explicitly defined as input parameters.
+    \item Instances of prepared data are created via \ac{DI}.
+    \item The framework identifies methods responsible for \textbf{deploying and removing data}.
+    \item The input parameters undergo \textbf{validation}
+    \item Saves methods and parameters within the \texttt{Store} test to the data queue for call.
+\end{itemize}
+
+Once all attributes have been processed:
+
+\begin{enumerate}
+    \item \textbf{Before test} the methods of the prepared data identified as before the test are executed and added to the stack with the processed objects.
+    \item \textbf{After test} methods are executed to remove the prepared data from the stack. This is described in the core implementation \refsec{}.
+\end{enumerate}
+
+\subsection{Parameter Validation}
+
+The framework incorporates a parameter handling mechanism that ensures adaptability and correctness during test execution. The parameter management process includes the following key aspects:  
+
+\begin{itemize}  
+    \item \textbf{Implicit type conversion}: Where feasible, the framework performs automatic type conversion between compatible data types, such as transforming an \texttt{int} into a \texttt{string} or a \texttt{string} into a \texttt{long}.  
+    \item \textbf{Default value assignment}: In cases where parameters are not explicitly defined, the framework substitutes them with predefined default values to maintain test continuity.  
+    \item \textbf{Error detection and handling}: If a parameter cannot be automatically converted or has more parameters defined, the framework logs the discrepancy and raises an exception. This exception results in the termination of the test and triggers a cleanup process to remove any previously initialized data.  
+\end{itemize}  
+
+
+\section{Implementation of Data Prepared During Tests}
+

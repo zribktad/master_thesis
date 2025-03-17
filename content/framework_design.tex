@@ -13,23 +13,34 @@ ensuring that individual components of an application behave as expected.
 However, setting up and managing test data can often become a cumbersome process,
 especially in complex systems where tests depend on intricate data structures,
 external services, or specific state configurations.
-\subsection*{Functional Requirements}
 
+\subsection{Functional Requirements}
 \begin{itemize}
 	\item \textbf{Custom Data Preparation Attributes:}
+
 	      \begin{itemize}
 		      \item Implement distinct custom attributes for defining data preparation methods and for utilizing prepared data within tests.
 		      \item Ensure attributes for data preparation methods specify setup and teardown processes, supporting reuse across multiple test cases.
 		      \item Design attributes to allow the injection parameterized data, enabling differentiation for tests requiring similar preparation but with varying input parameters.
-		      \item Provide mechanisms for conditional test execution based on the prepared data state to ensure test reliability and flexibility.
+		      %\item Provide mechanisms for conditional test execution based on the prepared data state to ensure test reliability and flexibility.
 	      \end{itemize}
 
 	\item \textbf{Automated Test Data Handling:}
 	      \begin{itemize}
 		      \item Develop a mechanism to automate the execution of data preparation methods before and after tests, ensuring a consistent and reliable test environment.
 		      \item Ensure seamless preparation and injection of both simple and complex test data structures to support diverse testing scenarios.
+	      \end{itemize} 
+    \item \textbf{Service Provider Utilization:}
+	      \begin{itemize}
+		      \item Use a service provider pattern to manage dependencies and services required for data preparation.
+		      \item Support integration with dependency injection frameworks.
 	      \end{itemize}
-
+    \item \textbf{Logging Mechanism:}
+	      \begin{itemize}
+		      \item Enable developers to configure and customize the logging framework to facilitate debugging, monitoring
+              \item Support various logging levels (debug, info, warning, error, critical) to provide granular 
+              \item Ensure compatibility with standard logging libraries
+	      \end{itemize}
 	\item \textbf{Data Preparation Store:}
 	      \begin{itemize}
 		      \item Develop a centralized store to maintain mappings of data preparation instances associated with test methods, enabling efficient and organized data management.
@@ -42,25 +53,14 @@ external services, or specific state configurations.
 		      \item Ensure that custom lifecycle hooks are compatible with parallel test execution to maintain consistency in multi-threaded scenarios.
 	      \end{itemize}
 
-	\item \textbf{Attribute Count Tracking:}
-	      \begin{itemize}
-		      \item Develop a mechanism to track the execution of custom attributes and ensure that all necessary data preparations are completed before testing execution begins.
-		      \item Avoid redundancy in data preparation by coordinating attribute behavior for tests with multiple attributes applied.
-	      \end{itemize}
-
-	\item \textbf{Service Provider Utilization:}
-	      \begin{itemize}
-		      \item Use a service provider pattern to manage dependencies and services required for data preparation.
-		      \item Support integration with dependency injection frameworks.
-	      \end{itemize}
 	\item \textbf{Interface Usage:}
 	      \begin{itemize}
 		      \item Define clear and reusable interfaces for data preparation and cleanup logic to promote consistency and scalability across the framework.
-		      \item Ensure that the interfaces allow developers to implement custom preparation methods tailored to specific testing requirements.
+		      \item Ensure that the interfaces allow developers to implement custom methods tailored to specific testing requirements.
 	      \end{itemize}
 \end{itemize}
 
-\subsection*{Non-Functional Requirements}
+\subsection{Non-Functional Requirements}
 
 \begin{itemize}
 	\item \textbf{Performance Efficiency:}
@@ -68,9 +68,15 @@ external services, or specific state configurations.
 		      \item Ensure minimal overhead is introduced during test execution to maintain optimal performance.
 		      \item Optimize data preparation logic to minimize unnecessary computation or resource usage.
 	      \end{itemize}
-
+    \item \textbf{Data isolation:}
+        \begin{itemize}
+            \item Ensure that test data remain isolated within the scope of the specific test execution.
+            \item Prevent data leakage between test cases, ensuring independent and repeatable test results.
+            \item Automatically clean test data after each test run to maintain a controlled testing environment.
+            \item Avoid unintended persistence of test-generated data beyond the lifecycle of the test execution.
+        \end{itemize}
 	\item \textbf{Modularity and Extensibility:}
-	      \begin{itemize}
+  	      \begin{itemize}
 		      \item Design the framework with a modular architecture to facilitate easy maintenance and future enhancements.
 		      \item Provide extension points for developers to customize or extend attributes and lifecycle handling.
 	      \end{itemize}
@@ -88,93 +94,225 @@ external services, or specific state configurations.
 	      \end{itemize}
 	\item \textbf{Documentation and User Guidance:}
 	      \begin{itemize}
-		      \item Provide comprehensive documentation, including user guides, examples, and FAQs, to simplify the adoption and usage of the framework.
-		      \item Include inline comments within the codebase to explain key implementation details and design choices.
-		      \item Offer troubleshooting steps and recommendations for common integration or usage challenges.
+		      \item Provide comprehensive documentation, including user guides and examples to simplify the adoption and usage of the framework.
 	      \end{itemize}
 \end{itemize}
 
-% Your content here.
+\section{Framework Architecture }
 
-\section{Framework Architecture}
+The primary objective of the framework design is to ensure compatibility with the \ac{BOA} framework while simultaneously providing efficient functionality when implementing alternative NUnit testing methodologies. The architecture is conceptualized to guarantee scalability, maintainability, and seamless integration with existing unit testing workflows. A fundamental design principle is the establishment of a fast learning curve and the minimization of initial implementation costs, achieved through the use of established patterns and practices with which developers are likely familiar, such as the Factory pattern elaborated in \refsec{sec:FactoryPattern}. The framework architecture enables test developers to prepare data not only for tested methods and classes but also for the database models that represent these data. Furthermore, the design ensures ongoing maintainability and facilitates continuous improvement through its extensible structure.
 
-The architecture of the framework is carefully designed to ensure scalability,
-maintainability, and seamless integration with existing unit testing workflows.
+Particular emphasis is placed on supporting NUnit tests that interact with database systems or utilize the Entity Framework. In these scenarios, tests are typically run on a shared database, which necessarily compromises test isolation. To address this concern, the framework not only manages the preparation of test data but also systematically handles the removal of data created during test execution. The removal process for dependencies occurs in the reverse order of their creation, ensuring complete cleanup of the testing environment.
 
-The framework architecture is divided into two main components. The first component focuses on data preparation, while the second encompasses the test case, which includes the tests themselves. Except for specific framework elements, the test case retains the same components as those used in NUnit testing. The framework extends the functionality of the test case by defining whether it should be executed, specifying the framework services required for the test case, and identifying the prepared data to be used for individual tests.
+The architecture of the framework comprises three main components. The first component is the common core that serves as the foundation of the entire framework, the second involves the use of prepared data prior to testing, and the third concerns the creation of ready test data during test execution.
 
-Data preparation represents an additional feature compared to standard testing and requires developers to become familiar with its implementation when using the framework. The design of the data preparation component is structured to support both class-level and method-level test data preparation. The primary task for developers is to create a class associated, for example, with a specific tested method. The class does not require a constructor unless the developer requires dependencies on specific services. Instead, it only needs to define methods for setting up the data and for cleaning up the prepared data after testing.
-
-This architectural approach ensures that the framework provides added value through structured data preparation while maintaining compatibility with known NUnit-based test case practices. The framework design is intended to be intuitive and easy to use, requiring minimal effort to adapt to the new data preparation features. The architecture is designed to be scalable and extensible, allowing developers to add new features and functionalities as needed. The modular design of the framework ensures that each component can be easily replaced or extended without affecting the overall functionality of the system.
-
-It is structured into distinct layers,
-each fulfilling specific responsibilities while adhering to the principles of modular design and separation of concerns. The following subsections describe the primary components of the architecture.
-
-\subsection{Attributes Layer}
-
-The \textit{Attributes Layer} is designed to facilitate the management of test data and the configuration of test frameworks. Almost every attribute in this layer serves as a directive indicating that a particular test case or method requires the preparation and use of specific data. The attributes provide a structured way to manage data setup and cleaning and ensure that the necessary data conditions are met before and after testing execution. The main reason to use attributes is to allow the programmer to extend the functionality of the NUnit framework and to ensure that there is no significant change in the process of how the tests are created and that the programmer does not need to spend too much effort to extend the knowledge of how the tests are created. The result is that the testing will be almost the same as before the extension of the framework and that there will be no need to learn new procedures or approaches to testing.
+The framework architecture is structured into three principal components.
+\begin{itemize}
+    \item A common core layer that serves as the foundation of the entire framework
+    \item A pre-test data preparation component that configures the necessary testing environment
+    \item A runtime test data utilization component that facilitates access to prepared data during test execution
+\end{itemize}
 
 
-\subsection*{Attributes for Data Preparation}
+This tripartite structure provides a comprehensive solution for data management throughout the testing lifecycle, addressing the challenges inherent in database-dependent testing scenarios while maintaining a clean and maintainable codebase. The architecture's modular design supports progressive enhancement and adaptation to evolving testing requirements without necessitating fundamental restructuring.
 
-The \textit{Attributes for Data Preparation} layer is designed to manage the setup and cleanup of test data within testing. The attributes serve as directives that indicate specific data requirements for test cases or methods. Provide a structured way to prepare, call, and remove prepared test data.  Ensure that the test environment is properly configured and that the conditions for the test data are met before, during, and after the execution of the test. This layer provides a unified approach to data set manipulation that enables precise control over data preparation management, which is essential to maintain the robustness and maintainability of the test procedures.
+\subsection{Common Framework Component}
+\subsubsection{Core Architecture}
+The architecture of the common component constitutes the core of the framework, serving as the central mechanism for managing test information and performing supplementary functions. The component is fundamentally designed around the identification mechanism that triggers the utilization of the framework. For this purpose, specialized identification attributes, \texttt{DataPreparationFixture} and \texttt{DataPreparationTest}, are implemented to replace and fulfill the equivalent roles of the \texttt{TestFixture} and \texttt{Test} attributes defined in standard NUnit testing. This approach requires minimal modifications from the testing engineer to enable extension functionality. The \texttt{DataPreparationFixture} attribute systematically identifies and configures essential information about the data being prepared within the same assembly in which it is defined, provided that the assembly has not been previously analyzed. In addition, it invokes further extension configurations, such as logging settings, and initializes the baseline configuration for the \ac{DI}container utilized during test execution. The \texttt{DataPreparationTest} attribute is responsible for configuring the necessary information for a test. Create the dependency injection container, configure the logger, and provide the data preparation information to be used during the execution of the test.
 
-The attributes for data preparation for a class or method are different, but the data preparation structure is the same. This structure ensures a uniform approach to data preparation management, which is key to maintaining the robustness and maintainability of test practices. Instead of forcing programmers to implement the data preparation structure for each test method separately, it allows them to simply use the prepared data techniques and ensure that they are used correctly.
-Although the data preparation structure is the same for class-prepared and method-prepared data, there are differences in how these attributes are used and how they affect test scenarios. The attributes for preparing data for a class allow you to define the methods for preparing data that are necessary for testing the whole class. The attributes ensure that the data preparation methods are properly configured and initialized according to the test scenario. The data preparation method attributes allow for more precise control over the preparation of data specific to a particular test scenario. 
-All attributes support parameterized data inputs, allowing resolution for tests that have similar preparation requirements but different input parameters. The addition of parameters ensures that the data preparation is appropriate to the specific test requirements and that the data preparation can be dynamically changed according to the needs of the test.
+\subsubsection{\acf{DI}}
+A crucial architectural element of the framework is the Dependency Injection container. The framework implements this container utilizing the \texttt{Microsoft.Extensions.DependencyInjection}\footnote{\href{https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection}{https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection}}. package, adhering to established dependency management practices. During the testing process, each individual test case is allocated its own dedicated dependency injection container. This container is instantiated prior to test execution and remains accessible throughout the test lifecycle until completion. The container encapsulates implementations of classes that facilitate the deployment of test data.
 
-The data preparation structure is created by the programmer independently. Consists of identification for which class or method the programmer wants to prepare the data with regard to what the given attribute will help, and enables the programmer to arrange the given structure to the class or method.
+The extension architecture offers significant flexibility by allowing users to define a specific implementation for test \ac{DI}, such as custom \texttt{DBContext} objects or various services that the tested code or data preparation process requires. This capability is facilitated through the implementation of an interface for the test fixture container. This interface includes a method that accepts an instance of \texttt{IServiceCollection} as input. Consequently, testing engineers can not only add services with specific lifecycle configurations but also customize the \ac{DI} provider before the execution of the test and the preparation of the data. 
 
-\subsection*{Testing Attributes}\label{subs:test_attrib}
+To access the DI container within tests, a static class with contextual methods returns the appropriate DI instance based on the current NUnit context. This ensures access to defined services from anywhere within the test context, whether dealing with parameterized tests or parallel processing scenarios.
 
-The test attributes help define the test scenarios in which test data need to be prepared and used. Each of the attributes provides unique properties that allow for different data processing configurations. The base test attribute determines if the framework is to be used at all for a given test case. Other attributes are dedicated to calling data preparation for different tests as well as subsequent data rollback. By defining the attributes for a test, it is possible to specify more precisely how the data should be prepared and used. Data processing can be tailored to the specific requirements of the test, ensuring the data are accurately prepared.
-Ensure that the necessary services are configured and initialized according to the unique requirements of each test scenario.
+\section{Advanced Test Fixture Capabilities}
 
-The attributes are divided into two main types. The first is an attribute that identifies that a specific test data is to be used for a given test method or class. Recognizable by the \textit{For} expression. The second type of attribute allows us to call the prepared data directly without knowing which method or class is used in the test. The design allows the programmer to easily access the prepared data during test execution. Enables precise selection of data sources needed for a given test.
+Test Fixtures can implement two additional interfaces from the Data Preparation extension, enhancing their functionality:
 
-In the above cases, we discuss calls to prepared data that have no parameters or do not need them. An extended version of these attributes are attributes that allow the use of parameters to define the preparation and manipulation of test data. The attributes allow for more precise control over how the data is manipulated on the basis of the specified parameters. This structure ensures a systematic approach to testing data management. The attributes containing the \textit{Params} expression in the name.
+\begin{enumerate}
+    \item The first interface provides a method that executes before each test, accepting the Service Provider for that specific test as an input parameter. This method runs immediately after the creation of the service provider, preceding any data preparation activities.
+    
+    \item The second interface implements a method that executes after each test with the service provider as an input parameter, operating before the extension framework cleans up the prepared data.
+\end{enumerate}
 
-\subsection*{Attributes of prepared data}\label{subs:att_prep_data}
+This mechanism ensures comprehensive control over the test environment throughout the testing lifecycle, facilitating advanced test orchestration and resource management capabilities. The architecture follows the principle of control inversion, allowing test authors to focus on test logic while delegating infrastructure concerns to the framework.
 
-The \refsec{subs:test_attrib} discussed the preparation of data with parameters in this case we need to prepare the data to be able to accept and work with these parameters. The interfaces provide guaranteed direction and enforce adherence to the specified structure. However, interfaces can limit the flexibility of the programmer, especially if we need to define methods that do the same thing but contain different input arguments. To ensure that developers retain sufficient freedom while allowing prepared data to conform to the structure they envision, attributes were introduced. The attributes are intended to define data preparation methods for the methods or classes under test, indicating whether the method involves deploying the prepared data or removing it.
+\section{Logging Configuration}
 
-The attributes are defined before the method responsible for handling the data. Their primary benefit lies in granting developers the ability to incorporate input parameters, enabling precise customization of data preparation and manipulation processes.
-The approach ensures that data preparation and processing processes remain consistent with testing requirements while allowing developers to tailor them to the specific needs of individual test scenarios.
+Another important aspect is the logging configuration for the extension. This functionality is implemented through an interface for the Test Fixture class. The interface defines a method that returns \texttt{Microsoft.Extensions.Logging.ILoggerFactory} from the \texttt{Microsoft.Extensions.Logging.Abstractions} NuGet package.
 
-\subsection{Interface Layer}
-The \textit{Interface Layer} consists of the interfaces that cover the preparation and management of test data and related services. The Layer ensures consistency and modularity in the way data is prepared for test scenarios, supporting a structured approach.
+This approach leverages an established library that provides testing engineers with capabilities to:
 
-Some of the interfaces are used for data preparation. The interfaces for preparing data for the method under test are designed at the class and method level. The data preparation interfaces provide only non-parametric methods for recalling the prepared data and subsequent data cleaning.  The attributes defined in \refsec{subs:att_prep_data} prove the same function, but also allow arguments.  However, the attributes lead to more complex code, which is not needed when preparing data without arguments.
+\begin{itemize}
+    \item Configure logging levels according to test requirements
+    \item Implement custom logging providers for specialized output formats
+    \item Direct log output to appropriate destinations (console, file, etc.)
+    \item Filter logs based on categories and severity
+\end{itemize}
 
-In addition to data preparation, the interfaces layer contains mechanisms for managing test services. The interfaces extend the test case and add additional functionality to the framework. One of them is used to register and initialize services in the container within the test framework. 
-The interface provides a structured resource that the classes for preparing the data accept and can use according to the developer's thinking.
-Another interface is for defining the databases to be used in the test case. 
+The integration of standardized logging abstractions enhances the extension's interoperability with existing logging frameworks while maintaining flexibility for custom implementation. This allows for comprehensive test execution monitoring and troubleshooting without requiring custom logging implementations.
 
-\todo{database}
+\section{Integration with NUnit Test Lifecycle}
 
-\subsection{Data Handling Layer}
+The Data Preparation extension integrates seamlessly with NUnit's test lifecycle, providing hooks at critical points:
 
-The \textit{Data Handling Layer} is responsible for orchestrating the preparation, management, and cleanup of test data. The layer introduces key components to ensure the integrity and consistency of the testing environment.
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lll}
+    \textbf{Framework Phase} & \textbf{Extension Hook} & \textbf{Purpose} \\
+    Test Fixture Pre-execution  & Attribute Processing & Identify prepared data and configure \ac{DI}  \\
+    Test Pre-execution & Container Initialization & Create test \ac{DI} and logger \\
+    Execution & Context Access & Provide dependencies to test code \\
+    Test Post-execution & Cleanup & Release test resources \\
+    \end{tabular}
+    \caption{Framework Integration Points}
+    \label{tab:fip} %after caption
+\end{table}
 
-The core of the \textit{Data Handling Layer} is a system that automates the execution of methods for deploying prepared data and cleaning. The handler enforces a deterministic order of execution, ensuring that all preparatory logic is executed before the test is run and that cleanup operations are then reliably performed. In addition, the layer contains exception handling mechanisms that guarantee proper cleanup even in situations where tests fail unexpectedly.
+By leveraging integration points from the \reftab{tab:fip}, the extension maintains compatibility with standard NUnit practices while significantly enhancing its data management capabilities for testing scenarios that require complex data preparation.
 
-The \texttt{Preparation data store} complements the handler by providing a centralized repository to manage data preparation instances associated with test methods. The store optimizes test execution by caching prepared data, reducing redundant computations, and improving performance. Additionally, the store is implemented with thread safety to support concurrent test executions in multithreaded environments.
-
-\subsection{Integration Layer}
-\textit{Integration Layer} aims to increase the efficiency of attribute execution and promote modularity through service-oriented design.
-The \texttt{Attribute Count Storage} is critical in ensuring proper execution of data preparation. The \texttt{Attribute Count Storage} monitors the invocation of attributes applied to test methods, preventing duplicate execution of methods for preparing and cleaning test data when multiple attributes are stored on top of each other. This mechanism ensures that all preparatory logic runs as expected while maintaining efficiency.
-
-In order to improve the separation of preparatory logic, the \texttt{Provider Store} framework is employed as a service provider. This component facilitates the implementation of dependency injection principles, enabling developers to dynamically register and incorporate services during testing. This methodology allows the framework to integrate effortlessly with established dependency injection frameworks, such as \texttt{Microsoft.Extensions.DependencyInjection}\footnote{\href{https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection}{https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection}}.
+\section{Parallel execution support}
+Given the growing importance of parallelism in modern testing frameworks, the architecture has been designed to ensure reliable behavior in NUnit's \textit{parallel execution mode}. All lifecycle hooks, data preparation stores, and service providers are implemented with thread safety guarantees. This ensures that test data preparation and cleanup operations are executed consistently, even when tests are run concurrently across multiple threads. However, even though parallel test execution is supported, the primary process still remains on the successful parallel test architecture created by the tester.
 
 
-\section{NUnit Integration}
-The framework achieves seamless integration with NUnit by extending its lifecycle through the use of custom hooks. We facilitate NUnit integration by implementing the \texttt{ITestAction} interface, which provides NUnit attributes with methods that enable the execution of logic both prior to and after the execution of a test.
+\section{Architectural Design for Data Prepared Before Test}\label{sec:archBefore}
 
-Methods within the \texttt{ITestAction} interface, such as \texttt{BeforeTest} and \texttt{AfterTest}, are overridden to introduce steps for preparing data before test execution, as well as performing post-test cleanup and managing other services invoked and instantiated by the framework. This approach ensures that the data preparation and teardown processes are smoothly incorporated into the test execution flow without disrupting the inherent structure of NUnit's testing lifecycle.
+\subsection{Framework Support for Pre-Test Data Preparation}
 
-For enhanced control over test behavior, test targets are specified within the attributes, ensuring that custom logic is applied to individual test methods. Moreover, the architecture is designed to support extensibility, enabling the targeting of entire test classes or namespaces, thereby allowing developers to apply bulk-processing logic as needed.
+The application of the extension framework is to establish the prepared data before the execution of the test begins. This preparation may encompass the configuration of the service, the population of the database, or the implementation of mock objects. This pre-test data utilization methodology focuses specifically on using prepared test data for the methods and classes under examination. The approach establishes a deliberate association between these tested components and their corresponding test data. Specific test data are represented by dedicated classes.
 
-\subsection{Parallel Execution Support}
-\todo{Parallel execution support}
-Given the growing importance of parallelism in modern testing frameworks, the architecture has been designed to ensure reliable behavior in NUnit's \textit{parallel execution mode}. All lifecycle hooks, data preparation stores, and service providers are implemented with thread safety guarantees. This ensures that test data preparation and cleanup operations are executed consistently, even when tests are run concurrently across multiple threads.
+\subsection{Development Methodology}
+The principal responsibility of developers in this context is to create a class that corresponds to a specific method or class tested through attribute-based association. When registering test data to a class, it is sufficient to define the class type, in the case of a method, it is necessary to know the class type and the method name. The framework requires this class to implement a public constructor, which can use test \ac{DI} capabilities to which it is also registered, or, in cases where prepared data have no service dependencies, use a predefined constructor. The class is registered in DI with lifetime to the value of Singleton. In the attribute that assigns the class to the reference under test, there is an parameter in which the lifetime of the object can be manually changed.
+Subsequently, the testers define methods with appropriate parameters to create the prepared data and remove the prepared data after the test.
+
+The framework supports two distinct methodological approaches for the definition of create and remove methods. The first approach utilizes interfaces whose functions do not accept parameters, providing a straightforward implementation path. The second and more sophisticated approach is to define a public method and use attributes that explicitly specify whether the method is responsible for removing or creating data. A significant advantage of this attribute approach is that it allows testers to define custom input parameters that can be used during test procedures. The application of prepared data is specified before the test through attribute declarations for the test. Predetermined prepared test data are used and applied within the test context before the test is started and systematically removed after the test is completed.
+
+This architectural approach ensures that the framework provides substantial added value through the preparation of structured data, while maintaining full compatibility with established NUnit-based testing practices. A significant advantage is that testers are not required to discover class names to prepare data, they simply identify the methods and classes to be tested, which then automatically call the corresponding prepared data. In addition, the design of the framework emphasizes intuitive interaction and ease of use, requiring minimal customization effort to integrate its new features into existing testing workflows.
+
+
+\section{Architectural Design for Data Prepared During Tests} \label{sec:archDuring}
+
+\subsection{Framework Support for In-Test Data Preparation}
+
+The framework supports the creation of prepared data during the execution of the test, based on the factory pattern defined in \refsec{sec:FactoryPattern}. The core of this section is the Source Provider, which is responsible for managing, creating, and deleting the data generated during the test.  The generated data are deleted at the end of the test, due to the Source Factory, in the reverse order it was generated, to handle potential dependencies. Similarly to accessing the service provider within the test context, testers have access to the Source Factory instance using a method from the static class. Each test has its own Source Factory with its own data history and manages data only for the current test.
+
+\subsection{Data Factory model}\label{subsec:dataFactoryModel}
+Every type of data to be created using the framework requires a dedicated Data Factory defined by the tester. The Data Factory creates and deletes data of a specific type and is represented by a class implementing one of several interfaces, depending on the tester's preferences and the data type. For a specific Data Factory dedicated to the creation of a particular data type, testers can use a generic interface supporting the creation of it.
+
+Data Factory classes are automatically loaded into the \ac{DI} container configuration with the Singleton lifecycle when the test fixture is executed. Due to \ac{DI}, Data Factory can use a constructor with various service parameters defined in the Test Fixture, such as \texttt{DBContext} from the \ac{EF} or a client. The test context remains the same when using Data Factory, allowing you to use Source Factory to create partial data. Source Factory visibility allows chaining of multiple creation data and better code maintenance.
+
+\subsection{Data Creation} \label{subsec:DataCreation}
+The creation of data in the specific Data Factory is performed via the \texttt{Create} method implemented by the tester. The Create method is called by the Source Factory and returns the object of the requested type, which is specific to the data factory. The \texttt{Create} method includes several input parameters for object creation, the first a unique identifier used as an identifier for the created data. The identifier allows the tester to create different data and is unique for each create method call during the entire testing process. The second input parameter is an interface for input create parameters, which the tester may optionally provide during Source Factory usage in a test.
+
+\subsection{Data Deletion}\label{subsec:DataDeletion}
+Data deletion is handled by the \texttt{Delete} method implemented by the tester, called after the test case is finished. The method returns a binary value that indicates whether or not the deletion was successful when Source Factory attempted to delete the data. The input parameters for the \texttt{Delete} method are similar to the \texttt{Create} method in \refsec{subsec:DataCreation}, including the unique identifier and an interface for the delete parameters. In addition, the method also has a previously created object in the input that it must remove.
+
+\subsection{Input Parameters}
+To enhance framework usability and data diversity, testers can use parameters during the creation of objects. The creation and deletion methods described in \refsec{subsec:DataCreation} and \refsec{subsec:DataDeletion} have predefined interfaces for input parameters, allowing testers to create custom parameters for specific data types. The framework also implements basic parameter types for factories.
+\begin{itemize}
+    \item \texttt{Dictionary Params}, storing parameters in a dictionary.
+    \item \texttt{List Params}, storing parameters in an array.
+    \item \texttt{Object Param}, storing one object as a parameter.
+\end{itemize}
+
+\subsubsection{Find Method}
+All basic parameter types implement an interface for parameters containing the \texttt{Find} method. The \texttt{Find} method is generic and retrieves the first stored object of the specified generic type that satisfies the predicate parameters. If no match is found, it returns the default value for that type and false. The interface provides a default implementation for cleaner code, so testers are not required to implement this function.
+
+\subsection{Source Factory Methods}
+This section presents the design of the methods defined by the Source Factory interface, that the tester can use while writing tests.
+
+\subsubsection{New Method}\label{subsec:new}
+The \texttt{New} method creates a completely new object regardless of existing objects from the same Data Factory. Returns the requested object and input parameter is interface for creation parameters and an optional output parameter for the created object identifier. If a defined \texttt{New} method includes a \texttt{Size} parameter, it creates an array of elements based on the specified size, with parameters for their creation and an output array of identifiers for the created objects.
+
+\subsubsection{Get Method}\label{subsec:get}
+The \texttt{Get} method retrieves objects without always creating a new one if an object from the Data Factory already exists. The method returns the last created object if it exists, otherwise it creates one. This principle is useful when the tester needs any data rather than a new one, reducing the number of created objects. The method returns the requested object instance and includes an output parameter for the object identifier. If a defined \texttt{Get} method includes a \texttt{Size} parameter, it returns an array of elements based on the specified size. The returned data comprises the most recently created objects, along with any newly generated ones if required, and are sorted in descending order from newest to oldest. The output parameter is an array of identifiers for the returned objects.
+
+\subsubsection{Was Method}\label{subsec:was}
+The \texttt{Was} method returns the history of objects created during the test. The \texttt{Was} method returning an array of elements created for a specific Factory type, allowing testers to revisit all created elements for subsequent verification. The output parameter is an array of identifiers for the returned objects.
+
+\subsubsection{Register Method}\label{subsec:register}
+In the course of testing, new dependencies may emerge on datasets that are not produced by the Source Factory. Without removing these dependencies, it may be impossible to delete the created data from the Source Factory. The \texttt{Register} method addresses this by allowing testers to register data for subsequent deletion by the Source Factory. The method registers data created by methods other than the Source Factory for deletion and ensures proper data management. The return value of the \texttt{Register} method is binary, indicating successful registration, with input parameters for the data and the deletion method's input parameter interface. The output parameter is an identifier for the registered data.
+
+\subsubsection{GetById Method}\label{subsec:getById}
+The \texttt{GetById} method returns the data from Source Factory created based on the input identifier. Using a generic \texttt{GetById} method for the Data Factory, it searches within the specified Data Factory or a non-generic method searches across all Data Factories used by Source Factory. If the method does not find the data under the specified identifier, it returns a null value.
+
+\section{Asynchronous Data Factory Model}
+
+\subsection{Necessity of Asynchronous Data Creation}
+In certain scenarios, test data needs to be created asynchronously. This requirement may arise due to the nature of the operations involved, such as sending queries or invoking services that developers have pre-configured for asynchronous methods. Asynchronous data creation is particularly relevant when dealing with external services or operations that are inherently non-blocking and beneficial for optimizing test execution time.
+
+\subsection{Framework Support for Asynchronous Data Factories}
+To accommodate the need for asynchronous data creation, the framework supports asynchronous methods for data preparation during tests. This feature represents a distinct implementation of the Data Factory compared to the synchronous approach described in Section \refsec{subsec:dataFactoryModel}. The primary difference lies in the type of return of the methods. Methods return instead of returning objects directly, the methods return wrapped objects in a \texttt{Task}. Additionally, the \texttt{Create} method includes a \texttt{CancellationToken} as an additional input parameter, which can be used to cancel the creation of data if necessary.
+
+\subsection{Implementation of Asynchronous Methods}
+Developers can use the implementation of asynchronous Data Factories methods managed by the Source Factory safely. In addition to the \texttt{New} method \refsec{subsec:new} and the \texttt{Get} method \refsec{subsec:get}, the Source Factory includes \texttt{NewAsync} and \texttt{GetAsync} methods designed to handle asynchronous operations. Asynchronous methods return the expected data wrapped in a \texttt{Task}, allowing developers to await the data safely using the NUnit framework. The input and output parameters for both \texttt{NewAsync} and \texttt{GetAsync} methods are similar to their synchronous counterparts, with the addition of the \texttt{CancellationToken}.
+
+\subsection{Integration with Existing Methods}
+The \texttt{Was} \refsec{subsec:was} and \texttt{GetById} \refsec{subsec:getById} methods in the Source Factory functionally as before, but asynchronously created data must be successfully completed to be added to the Source Factory's history and be retrievable. This ensures that asynchronous operations are fully integrated into the framework's data management processes.
+
+By supporting asynchronous data creation, the framework enhances its flexibility and capability to handle diverse testing scenarios. This feature allows for more efficient and responsive test execution, particularly in environments where asynchronous operations are prevalent. The integration of asynchronous methods into the Data Factory model underscores the framework's commitment to providing comprehensive and adaptable testing solutions.
+
+\section{Error Handling in the Extension Framework}
+
+Errors are an inherent aspect of software development and testing. In the context of an extension framework implemented using NUnit, errors may occur at various stages, either during the preparation of the test data (see \refsec{sec:archBefore}) or during the execution of the test (see \refsec{sec:archDuring}). It is therefore essential to systematically log and handle all errors to minimize their impact on the testing cycle.
+
+\subsection{Types and Origins of Errors}
+%Errors encountered within the extension framework can be classified into the following categories.
+\begin{itemize}
+\item \textbf{Internal Framework Errors:} These errors arise due to flaws in the framework's implementation, potentially affecting data preparation logic or processing mechanisms.
+\item \textbf{Errors in Data Preparation:} These occur when a test class improperly registers test data or when issues arise during data loading and processing before test execution.
+\end{itemize}
+
+
+\subsection{Error handling procedure for pre-test data preparation} \label{subsec:HandleBefore}
+
+In the data preparation phase prior to test execution (see \refsec{sec:archBefore}), error handling follows a structured approach:
+
+\begin{itemize}
+    \item \textbf{Error Logging:} If an error occurs during data creation, it is immediately recorded in the logs.
+    \item \textbf{Exception Propagation:} A corresponding exception is thrown and subsequently captured by the test framework, resulting in a test failure.
+    \item \textbf{Test Termination and Data Cleanup:} Upon exception propagation, the test execution is halted. All successfully prepared data preceding the error occurrence is then deleted.
+\end{itemize}
+
+Errors may also arise during the data deletion process. The implemented error-handling mechanism ensures the following:
+
+\begin{itemize}
+    \item \textbf{Logging of Non-Removable Data:} Any data that cannot be deleted is logged to facilitate post-execution diagnostics.
+    \item \textbf{Continuation of Cleanup Process:} Despite encountering errors with certain data elements, the deletion process continues for the remaining data.
+    \item \textbf{Aggregated Exception Handling:} At the end of the cleanup process, an aggregated exception is raised that summarizes all errors related to deletion. This approach provides comprehensive feedback on all issues encountered within the operation.
+\end{itemize}
+
+\subsection{Error Handling During Test Execution}
+A similar error handling strategy as \refsec{subsec:HandleBefore} applies during the test execution phase (see \refsec{sec:archDuring}). If an unexpected exception occurs during a test:
+
+\begin{itemize}
+    \item The error is logged immediately.
+    \item The exception is further propagated, leading to the termination of the test.
+    \item Following the termination of the test, the data cleanup process is executed under the same error handling mechanism as described in \refsec{subsec:HandleBefore}.
+\end{itemize}
+
+
+\section{Framework Utilization}
+
+The framework supports the simultaneous use of data prepared in the pre-test phase and data dynamically generated during test execution. The following description outlines the overall test case cycle when utilizing the framework.
+
+\begin{enumerate}
+    \item \textbf{Initialization:} The fundamental test case information is set up.
+    \item \textbf{Pre-Test Preparation:} The predefined test data are created before the test execution begins.
+    \item \textbf{Test Execution:} The test starts and additional data can be dynamically generated during its execution.
+    \item \textbf{Test Completion:} Upon test termination, data cleanup is performed in a structured manner: \begin{itemize}
+        \item First, data generated during the test execution is deleted in reverse order of creation.
+        \item Next, pre-prepared test data are removed, also in reverse order.
+    \end{itemize}
+    \item \textbf{Deinitialization:} All information sources related to the test case are deinitialized.
+\end{enumerate}
+
+
+
+
+
+
+
 
